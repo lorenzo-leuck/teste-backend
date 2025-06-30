@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { databaseConfig } from './config/database.config';
 import { ObservabilityModule } from './observability';
 import { MockModule } from './modules/mock/mock.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { MockModule } from './modules/mock/mock.module';
     TypeOrmModule.forRoot(databaseConfig),
     ObservabilityModule,
     MockModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

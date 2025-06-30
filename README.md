@@ -79,6 +79,29 @@ The application is containerized using Docker and orchestrated with Docker Compo
 - **PgAdmin**: Web-based PostgreSQL administration tool
 
 ## Authentication
+
+The application uses JWT (JSON Web Token) based authentication with Bearer tokens. Authentication is required for certain endpoints, while others can be accessed without authentication.
+
+### Authentication Endpoints
+
+- **POST /api/auth/signup**: Register a new user
+  - Request body: `{ "username": "string", "email": "string", "password": "string" }`
+  - Response: `{ "token": "string" }`
+
+### Protected Routes
+
+The following routes require authentication with a valid Bearer token:
+
+- All URL management endpoints (GET, POST, PUT, DELETE /api/urls)
+- User-specific endpoints
+
+### Authentication Headers
+
+For protected routes, include the JWT token in the Authorization header:
+
+```
+Authorization: Bearer <your_jwt_token>
+```
 ## API Endpoints
 ## URLs
 
