@@ -1,41 +1,79 @@
-# 🔗 Teste Backend End
-Sistema de encurtamento de URLs em TypeScript/NestJS 
 
-## Candidato: 
+# Backend Test
+URL shortening system
+
+
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
+
+<img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+<img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
+<img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
+<img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+<img src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" />
+<img src="https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white" alt="Terraform" />
+<img src="https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white" alt="Jest" />
+</p>
+
+
+## Candidate: 
 <a href="https://www.linkedin.com/in/lorenzo-leuck/">Lorenzo Leuck</a>
 
-## Repo
-https://github.com/lorenzo-leuck/ia-fase-4-gs
-
----
-
-# 🚀 Como rodar o projeto
-
-## Pré-requisitos
 
 
-## Execução
+# Project setup
+
+```bash
+# Clone the repository
+git clone https://github.com/lorenzo-leuck/teste-backend.git
+
+# Configure environment variables
+cp .env.example .env
+
+```
+
+# Run tests
+
+```bash
+
+```
+
+# Deployment
 
 
----
+```bash
 
-# 📚 Documentação
+```
+
+# Resources
+
+## Authentication
+## API Endpoints
+## URLs
 
 
----
+# Documentation
 
-## Estrutura de pastas
+Complete API documentation is available through Swagger UI:
+
+```
+http://localhost:3000/api/docs
+```
+
+## Folder Structure
+
+
+## System Architecture
+
+## Shortening Algorithm
+
+# Considerations
 
 
 
-## Arquitetura do Sistema
+# Release History
+* 0.1 
 
-# 💭 Considerações Finais
-
----
-
-# 🗃 Histórico de lançamentos* 0.1 - 16/05/2025
-
-# 📋 Licença
+# License
 
 <img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1">
