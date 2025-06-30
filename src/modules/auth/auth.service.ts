@@ -56,4 +56,14 @@ export class AuthService {
       throw new UnauthorizedException();
     }
   }
+
+  async findAllUsers(): Promise<Partial<User>[]> {
+    const users = await this.userRepository.find();
+    
+    // Return users without sensitive information
+    return users.map(user => {
+      const { password, ...result } = user;
+      return result;
+    });
+  }
 }

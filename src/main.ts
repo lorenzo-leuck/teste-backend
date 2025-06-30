@@ -14,7 +14,11 @@ async function bootstrap() {
   const logger = app.get(AppLoggerService);
   app.useLogger(logger);
   
-  app.enableCors();
+  app.enableCors({
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     transform: true,
@@ -32,7 +36,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
   
-  await app.listen(appConfig.port);
+  await app.listen(appConfig.port, '0.0.0.0');
   logger.log(`Application is running on: ${await app.getUrl()}`);
   logger.log(`Health check available at: ${await app.getUrl()}/api/health`);
   logger.log(`Swagger documentation available at: ${await app.getUrl()}/api/docs`);
