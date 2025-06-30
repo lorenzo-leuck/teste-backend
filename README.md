@@ -72,7 +72,7 @@ http://localhost:3000/api/docs
 
 
 # Release History
-* 0.1 
+* 0.1 - Nest Setup
 
 # License
 
