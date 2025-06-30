@@ -41,6 +41,8 @@ cd teste-backend
 # Configure environment variables
 cp .env.example .env
 
+# Edit the .env file to configure your environment variables
+
 # Start the Docker containers using npm script
 npm run docker:up
 
@@ -70,10 +72,40 @@ npm run test:e2e
 ```
 
 # Resources
+The application is containerized using Docker and orchestrated with Docker Compose. The setup includes:
+
+- **NestJS Application**: The main application container running the API
+- **PostgreSQL Database**: Relational database for storing URL data and user information
+- **PgAdmin**: Web-based PostgreSQL administration tool
 
 ## Authentication
 ## API Endpoints
 ## URLs
+
+## Observability
+
+The application includes built-in observability features that can be enabled via environment variables:
+
+- **Logging**: Configurable logging to console and/or files
+- **Request Tracking**: Monitor HTTP requests, response times, and status codes
+- **Performance Monitoring**: Track endpoint performance with sampling
+- **Health Checks**: Access system status via the `/health` endpoint
+
+To enable observability features, set the following in your `.env` file:
+
+```
+OBSERVABILITY_ENABLED=true
+```
+
+Additional configuration options:
+
+```
+LOG_LEVEL=info           # Options: error, warn, info, debug, verbose
+LOG_TO_FILE=true         # Enable file-based logging
+TRACK_REQUESTS=true      # Track HTTP requests
+MONITOR_PERFORMANCE=true # Monitor endpoint performance
+ENABLE_HEALTH_CHECKS=true # Enable /health endpoint
+```
 
 
 # Documentation
@@ -122,11 +154,6 @@ The application uses a PostgreSQL relational database with the following schema:
 
 ## System Architecture
 
-The application is containerized using Docker and orchestrated with Docker Compose. The setup includes:
-
-- **NestJS Application**: The main application container running the API
-- **PostgreSQL Database**: Relational database for storing URL data and user information
-- **PgAdmin**: Web-based PostgreSQL administration tool
 
 ## Shortening Algorithm
 
