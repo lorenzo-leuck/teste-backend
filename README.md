@@ -25,8 +25,7 @@ URL shortening system
 
 ## Requirements
 
-- [Docker](https://www.docker.com/get-started) (version 20.10.0 or higher)
-- [Docker Compose](https://docs.docker.com/compose/install/) (version 1.29.0 or higher)
+- [Docker](https://www.docker.com/get-started) (version 20.10.0 or higher with Docker Compose V2)
 - [Node.js](https://nodejs.org/) (version 20.x)
 - [npm](https://www.npmjs.com/) (version 9.x or higher)
 
@@ -46,6 +45,7 @@ cp .env.example .env
 npm run docker:up
 
 # The application will be available at http://localhost:3000
+# PostgreSQL will be available at localhost:5433
 # PgAdmin will be available at http://localhost:5050 (login: admin@admin.com / password: admin)
 ```
 
