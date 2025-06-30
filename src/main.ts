@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { appConfig } from './config';
 import { AppLoggerService } from './observability';
+import { AllExceptionsFilter } from './filters/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -23,6 +24,9 @@ async function bootstrap() {
     whitelist: true,
     transform: true,
   }));
+  
+  // Add global exception filter to prevent server crashes
+  app.useGlobalFilters(new AllExceptionsFilter());
   
   app.setGlobalPrefix('api');
   

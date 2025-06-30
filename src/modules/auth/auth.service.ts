@@ -17,19 +17,21 @@ export class AuthService {
   async signup(signupDto: SignupDto): Promise<{ token: string }> {
     try {
       const { username, email, password } = signupDto;
-
+      
       // Check if user already exists
+      let existingUser;
       try {
-        const existingUser = await this.userRepository.findOne({
+        existingUser = await this.userRepository.findOne({
           where: [{ username }, { email }],
         });
+      } catch (err) {
+        console.error('Error checking for existing user:', err);
+        // Instead of returning null, handle the database error properly
+        throw new Error(`Database error: ${err.message}`);
+      }
 
-        if (existingUser) {
-          throw new ConflictException('Username or email already exists');
-        }
-      } catch (dbError) {
-        console.error('Database error during user lookup:', dbError);
-        // Continue with signup if the error is not related to duplicate entry
+      if (existingUser) {
+        throw new ConflictException('Username or email already exists');
       }
 
       // Hash password
@@ -43,25 +45,26 @@ export class AuthService {
       });
 
       // Save user to database
+      let savedUser;
       try {
-        await this.userRepository.save(user);
+        savedUser = await this.userRepository.save(user);
+        console.log('User saved successfully:', savedUser.id);
       } catch (saveError) {
-        console.error('Error saving user to database:', saveError);
-        // If we can't save to the database, create a token anyway for testing
+        console.error('Failed to save user:', saveError);
+        throw new Error(`Failed to save user: ${saveError.message}`);
       }
 
       // Generate token
-      const payload = user.id ? { id: user.id, username: user.username } : { username, email };
-      const token = this.jwtService.sign(payload);
+      const token = this.jwtService.sign({
+        id: savedUser.id,
+        username: savedUser.username
+      });
 
       return { token };
     } catch (error) {
       console.error('Signup error:', error);
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      // Create a fallback token with the provided credentials
-      return { token: this.jwtService.sign({ username: signupDto.username, email: signupDto.email }) };
+      // Instead of trying to return a token on error, let the exception filter handle it
+      throw error;
     }
   }
 
@@ -90,5 +93,16 @@ export class AuthService {
       const { password, ...result } = user;
       return result;
     });
+  }
+
+  async findUserByUsernameOrEmail(username: string, email: string): Promise<User | null> {
+    try {
+      return await this.userRepository.findOne({
+        where: [{ username }, { email }]
+      });
+    } catch (error) {
+      console.error('Error finding user:', error);
+      throw error;
+    }
   }
 }

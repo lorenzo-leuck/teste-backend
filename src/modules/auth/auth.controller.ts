@@ -46,6 +46,7 @@ export class AuthController {
     try {
       return await this.authService.signup(signupDto);
     } catch (error) {
+      console.error('Error in signup controller:', error);
       throw error;
     }
   }
@@ -65,6 +66,96 @@ export class AuthController {
   })
   async testEndpoint() {
     return { message: 'Test endpoint working!' };
+  }
+  
+  @Public()
+  @Post('test-signup')
+  @ApiOperation({ summary: 'Test signup endpoint without database' })
+  @ApiBody({
+    type: SignupDto,
+    description: 'User signup credentials'
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Test signup successful',
+    schema: {
+      type: 'object',
+      properties: {
+        token: { type: 'string' },
+        user: {
+          type: 'object',
+          properties: {
+            username: { type: 'string' },
+            email: { type: 'string' }
+          }
+        }
+      }
+    }
+  })
+  async testSignup(@Body() signupDto: SignupDto) {
+    // This endpoint doesn't interact with the database
+    // It's just for testing if the API is working
+    const token = `test-token-${Math.random().toString(36).substring(2, 10)}`;
+    return { token, user: { username: signupDto.username, email: signupDto.email } };
+  }
+  
+  @Public()
+  @Post('db-test')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Test database operations' })
+  @ApiBody({
+    type: SignupDto,
+    description: 'User signup credentials'
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Database test successful',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        operation: { type: 'string' },
+        userExists: { type: 'boolean' },
+        message: { type: 'string' }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Database test failed',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        operation: { type: 'string' },
+        error: { type: 'string' },
+        stack: { type: 'string' }
+      }
+    }
+  })
+  async dbTest(@Body() signupDto: SignupDto) {
+    try {
+      // Step 1: Check if we can query the database
+      const existingUser = await this.authService.findUserByUsernameOrEmail(
+        signupDto.username, 
+        signupDto.email
+      );
+      
+      // Step 2: Return result without trying to create a user
+      return { 
+        success: true, 
+        operation: 'query',
+        userExists: !!existingUser,
+        message: 'Database query successful'
+      };
+    } catch (error) {
+      return { 
+        success: false, 
+        operation: 'query',
+        error: error.message || 'Unknown error',
+        stack: error.stack
+      };
+    }
   }
 
   @Public()

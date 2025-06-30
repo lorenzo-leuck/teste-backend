@@ -10,4 +10,10 @@ export const databaseConfig: TypeOrmModuleOptions = {
   database: process.env.DATABASE_NAME || 'url_shortener',
   entities: [User, Url, Click],
   synchronize: process.env.NODE_ENV !== 'production',
+  logging: process.env.NODE_ENV !== 'production',
+  connectTimeoutMS: 10000,
+  maxQueryExecutionTime: 10000,
+  retryAttempts: 5,
+  retryDelay: 3000,
+  autoLoadEntities: true,
 };
