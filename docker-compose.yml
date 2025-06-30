@@ -11,17 +11,10 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - postgres
-    environment:
-      - NODE_ENV=development
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
-      - DATABASE_NAME=url_shortener
-      - JWT_SECRET=your_jwt_secret
-      - JWT_EXPIRATION=3600
-      - OBSERVABILITY_ENABLED=false
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
     networks:
       - url-shortener-network
 
@@ -37,6 +30,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - url-shortener-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: always
 
   pgadmin:
     image: dpage/pgadmin4

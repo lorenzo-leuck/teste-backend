@@ -19,7 +19,10 @@ async function bootstrap() {
     transform: true,
   }));
   
+  app.setGlobalPrefix('api');
+  
   await app.listen(appConfig.port);
   logger.log(`Application is running on: ${await app.getUrl()}`);
+  logger.log(`Health check available at: ${await app.getUrl()}/api/health`);
 }
 bootstrap();
