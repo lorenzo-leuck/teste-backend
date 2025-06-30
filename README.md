@@ -84,6 +84,39 @@ Complete API documentation is available through Swagger UI:
 http://localhost:3000/api/docs
 ```
 
+## Database Schema
+
+The application uses a PostgreSQL relational database with the following schema:
+
+### User Entity
+- `id` (UUID): Primary key
+- `username` (String): Unique username for authentication
+- `email` (String): Unique email address for the user
+- `password` (String): Hashed password for secure authentication
+- `limit` (Number): Maximum number of URLs a user can create (default: 10)
+- `usage` (Number): Current number of URLs created by the user (default: 0)
+- `urls` (Relation): One-to-many relation with Url entity
+- `createdAt` (Date): Creation timestamp
+- `updatedAt` (Date): Last update timestamp
+
+### Url Entity
+- `id` (UUID): Primary key
+- `shortCode` (String): Unique 6-character code for shortened URL
+- `originalUrl` (String): Original URL to redirect to
+- `isDeleted` (Boolean): Flag for logical deletion
+- `user` (Relation): Many-to-one relation with User entity (nullable for anonymous URLs)
+- `clicks` (Relation): One-to-many relation with Click entity
+- `createdAt` (Date): Creation timestamp
+- `updatedAt` (Date): Last update timestamp
+
+### Click Entity
+- `id` (UUID): Primary key
+- `url` (Relation): Many-to-one relation with Url entity
+- `ipAddress` (String): IP address of the visitor (nullable)
+- `userAgent` (String): Browser/device information (nullable)
+- `referer` (String): Referring URL (nullable)
+- `createdAt` (Date): Click timestamp
+
 ## Folder Structure
 
 
