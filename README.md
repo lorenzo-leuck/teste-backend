@@ -23,24 +23,43 @@ URL shortening system
 
 # Project setup
 
+## Requirements
+
+- [Docker](https://www.docker.com/get-started) (version 20.10.0 or higher)
+- [Docker Compose](https://docs.docker.com/compose/install/) (version 1.29.0 or higher)
+- [Node.js](https://nodejs.org/) (version 20.x)
+- [npm](https://www.npmjs.com/) (version 9.x or higher)
+
+## Run app
+
 ```bash
 # Clone the repository
 git clone https://github.com/lorenzo-leuck/teste-backend.git
 
+# Navigate to project directory
+cd teste-backend
+
 # Configure environment variables
 cp .env.example .env
 
-# Start the Docker containers
-docker-compose up -d
+# Start the Docker containers using npm script
+npm run docker:up
 
 # The application will be available at http://localhost:3000
-# PgAdmin will be available at http://localhost:5050
+# PgAdmin will be available at http://localhost:5050 (login: admin@admin.com / password: admin)
 ```
 
-# Run tests
+## Run tests
 
 ```bash
+# Run unit tests
+npm run test
 
+# Run tests with coverage
+npm run test:cov
+
+# Run end-to-end tests
+npm run test:e2e
 ```
 
 # Deployment
