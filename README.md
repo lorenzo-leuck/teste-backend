@@ -30,6 +30,11 @@ git clone https://github.com/lorenzo-leuck/teste-backend.git
 # Configure environment variables
 cp .env.example .env
 
+# Start the Docker containers
+docker-compose up -d
+
+# The application will be available at http://localhost:3000
+# PgAdmin will be available at http://localhost:5050
 ```
 
 # Run tests
@@ -65,6 +70,12 @@ http://localhost:3000/api/docs
 
 ## System Architecture
 
+The application is containerized using Docker and orchestrated with Docker Compose. The setup includes:
+
+- **NestJS Application**: The main application container running the API
+- **PostgreSQL Database**: Relational database for storing URL data and user information
+- **PgAdmin**: Web-based PostgreSQL administration tool
+
 ## Shortening Algorithm
 
 # Considerations
@@ -73,6 +84,7 @@ http://localhost:3000/api/docs
 
 # Release History
 * 0.1 - Nest Setup
+* 0.2 - Docker Compose Configuration
 
 # License
 
