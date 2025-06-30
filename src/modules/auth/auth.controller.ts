@@ -42,8 +42,29 @@ export class AuthController {
     }
   })
   @ApiResponse({ status: 409, description: 'Username or email already exists' })
-  signup(@Body() signupDto: SignupDto) {
-    return this.authService.signup(signupDto);
+  async signup(@Body() signupDto: SignupDto) {
+    try {
+      return await this.authService.signup(signupDto);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Public()
+  @Get('test')
+  @ApiOperation({ summary: 'Test endpoint' })
+  @ApiResponse({
+    status: 200,
+    description: 'Test successful',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Test endpoint working!' }
+      }
+    }
+  })
+  async testEndpoint() {
+    return { message: 'Test endpoint working!' };
   }
 
   @Public()
