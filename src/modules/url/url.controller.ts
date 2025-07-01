@@ -16,6 +16,27 @@ import { Response } from 'express';
 export class UrlController {
   constructor(private readonly urlService: UrlService) {}
 
+  @Get('analytics')
+  @Public()
+  @ApiOperation({ summary: 'Get analytics for all non-deleted URLs' })
+  @ApiResponse({
+    status: 200,
+    description: 'Analytics data for all non-deleted URLs',
+    schema: {
+      type: 'array',
+      items: {
+        properties: {
+          originalUrl: { type: 'string' },
+          clickCount: { type: 'number' }
+        }
+      }
+    }
+  })
+  async getAnalytics() {
+    const urls = await this.urlService.getAnalytics();
+    return urls;
+  }
+
   @Post()
   @UseGuards(AuthGuard, CreditGuard)
   @RequiresCredits()

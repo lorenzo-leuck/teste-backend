@@ -243,4 +243,16 @@ export class UrlService {
       throw new BadRequestException('Failed to generate QR code');
     }
   }
+
+  async getAnalytics(): Promise<{ originalUrl: string; clickCount: number }[]> {
+    const urls = await this.urlRepository.find({
+      where: { isDeleted: false },
+      select: ['originalUrl', 'clickCount']
+    });
+    
+    return urls.map(url => ({
+      originalUrl: url.originalUrl,
+      clickCount: url.clickCount
+    }));
+  }
 }

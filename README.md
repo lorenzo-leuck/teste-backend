@@ -614,6 +614,29 @@ The application implements a credit system for authenticated users:
 
 When attempting to create a URL with insufficient credits, the API returns a 403 Forbidden response.
 
+### URL Analytics
+
+**Endpoint:** `GET /api/urls/analytics`
+
+**Authentication:** None required
+
+**Description:** Returns analytics data (destination URL and click count) for all non-deleted URLs.
+
+**Response:**
+
+```json
+[
+  {
+    "originalUrl": "https://www.example.com/very/long/path/to/resource",
+    "clickCount": 5
+  },
+  {
+    "originalUrl": "https://www.another-example.com/page",
+    "clickCount": 12
+  }
+]
+```
+
 
 # Documentation
 
@@ -755,21 +778,20 @@ The test summary script provides concise error reporting, making it easy to iden
 * Testing
   - Unit tests for core functionality
   - Jest configuration
-
-### Post 1.0 (Business Features)
-* URL Management
-  - Soft delete endpoints
-  - URL update functionality
-  - URL renewal endpoint
-* Statistics and Monitoring
-  - URL click statistics
-  - Click tracking
-* Documentation
-  - API documentation with Swagger
-  - Architecture documentation
 * Deployment
   - Kubernetes configuration
   - Production deployment setup
+  - 
+### Post 1.0 (Business Features)
+* Permission system
+  - Url Credits
+* Statistics and Monitoring
+  - URL click statistics
+  - Click tracking
+* QR Code Generation
+  - QR code generation endpoint
+  - QR code generation for shortened URLs
+
 
 # License
 
