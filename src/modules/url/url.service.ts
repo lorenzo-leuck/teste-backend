@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, BadRequestException } from '@nestjs/common';
+import { Injectable, ConflictException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Url } from '../../entities/url.entity';
@@ -78,6 +78,21 @@ export class UrlService {
       },
       order: { createdAt: 'DESC' }
     });
+  }
+
+  async findByShortCode(shortCode: string): Promise<Url> {
+    const url = await this.urlRepository.findOne({
+      where: { 
+        shortCode,
+        isDeleted: false 
+      }
+    });
+    
+    if (!url) {
+      throw new NotFoundException(`URL with short code ${shortCode} not found`);
+    }
+    
+    return url;
   }
 
   private generateShortCode(): string {

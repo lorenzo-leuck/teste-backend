@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, RequestMethod } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { appConfig } from './config';
 import { AppLoggerService } from './observability';
@@ -28,7 +28,12 @@ async function bootstrap() {
   // Add global exception filter to prevent server crashes
   app.useGlobalFilters(new AllExceptionsFilter());
   
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+    exclude: [
+      { path: ':shortCode', method: RequestMethod.GET },
+      { path: '', method: RequestMethod.GET }
+    ],
+  });
   
   // Setup Swagger
   const config = new DocumentBuilder()

@@ -256,6 +256,25 @@ token: <your_jwt_token>
 
 **Note:** This endpoint only returns URLs created by the authenticated user.
 
+### URL Redirection
+
+**Endpoint:** `GET /:shortCode`
+
+**Authentication:** None required
+
+**Description:** Redirects to the original URL associated with the provided short code.
+
+For example, visiting `http://localhost:3000/Ab3x9Z` will redirect to the original URL associated with the short code `Ab3x9Z`.
+
+**Response:**
+- HTTP 302 Found: Redirects to the original URL
+- HTTP 404 Not Found: If the short code doesn't exist or has been deleted
+
+**Implementation Details:**
+- The URL redirection is implemented at the root level, bypassing the global API prefix
+- This allows shortened URLs to be accessed directly through the base domain
+- The redirection controller handles all requests matching the pattern `/:shortCode`
+
 ## Observability
 
 The application includes built-in observability features that can be enabled via environment variables:

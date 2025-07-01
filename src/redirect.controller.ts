@@ -1,32 +1,13 @@
-import { Controller, Get, HttpStatus, Param, Res, NotFoundException } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { AppService } from './app.service';
-import { UrlService } from './modules/url/url.service';
+import { Controller, Get, Param, Res, NotFoundException } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { Response } from 'express';
+import { UrlService } from './modules/url/url.service';
 import { Public } from './modules/auth/public.decorator';
 
+@ApiTags('redirect')
 @Controller()
-export class AppController {
-  constructor(
-    private readonly appService: AppService,
-    private readonly urlService: UrlService
-  ) {}
-
-  @Public()
-  @Get()
-  @ApiOperation({ summary: 'API root endpoint' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Returns API welcome message' })
-  getHello(): string {
-    return this.appService.getHello();
-  }
-
-  @Public()
-  @Get('health')
-  @ApiOperation({ summary: 'Health check endpoint' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'API is healthy' })
-  healthCheck(): string {
-    return 'OK';
-  }
+export class RedirectController {
+  constructor(private readonly urlService: UrlService) {}
 
   @Public()
   @Get(':shortCode')
