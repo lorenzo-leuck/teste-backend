@@ -1,4 +1,9 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npx lint-staged
+# Run the lint summary script and capture its exit code
+node scripts/lint-summary.js
+LINT_RESULT=$?
+
+# Exit with the same code as the lint script
+exit $LINT_RESULT

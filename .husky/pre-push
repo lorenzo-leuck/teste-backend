@@ -1,4 +1,9 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+# Run the test summary script and capture its exit code
 node scripts/test-summary.js
+TEST_RESULT=$?
+
+# Exit with the same code as the test script
+exit $TEST_RESULT
