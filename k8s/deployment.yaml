@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: url-shortener-api
+  labels:
+    app: url-shortener-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: url-shortener-api
+  template:
+    metadata:
+      labels:
+        app: url-shortener-api
+    spec:
+      containers:
+      - name: url-shortener-api
+        image: ${DOCKER_REGISTRY}/url-shortener-api:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DATABASE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: url-shortener-secrets
+              key: database-host
+        - name: DATABASE_PORT
+          valueFrom:
+            secretKeyRef:
+              name: url-shortener-secrets
+              key: database-port
+        - name: DATABASE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: url-shortener-secrets
+              key: database-username
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: url-shortener-secrets
+              key: database-password
+        - name: DATABASE_NAME
+          valueFrom:
+            secretKeyRef:
+              name: url-shortener-secrets
+              key: database-name
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: url-shortener-secrets
+              key: jwt-secret
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5

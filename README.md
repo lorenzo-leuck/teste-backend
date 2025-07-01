@@ -426,6 +426,122 @@ The test suite covers:
 - Authentication controller endpoints including user registration and deletion
 - Middleware functionality for URL redirection and click tracking
 
+## Cloud Deployment
+
+This project includes configurations for deploying to a Kubernetes cluster on AWS using Terraform.
+
+### Prerequisites
+
+- [Terraform](https://www.terraform.io/downloads.html) (version 1.0.0 or higher)
+- [AWS CLI](https://aws.amazon.com/cli/) configured with appropriate credentials
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) for interacting with the Kubernetes cluster
+
+### Deployment Steps
+
+#### 1. Initialize Terraform
+
+```bash
+cd terraform
+terraform init
+```
+
+#### 2. Configure Variables
+
+Create a `terraform.tfvars` file with your specific values:
+
+```
+aws_region   = "us-east-1"
+cluster_name = "url-shortener"
+db_name      = "urlshortener"
+db_username  = "postgres"
+db_password  = "your-secure-password"
+```
+
+#### 3. Deploy Infrastructure
+
+```bash
+terraform plan
+terraform apply
+```
+
+This will create:
+- An EKS cluster on AWS
+- A VPC with public and private subnets
+- A PostgreSQL RDS instance
+- An ECR repository for Docker images
+
+#### 4. Configure kubectl
+
+After the infrastructure is deployed, configure kubectl to connect to your EKS cluster:
+
+```bash
+aws eks update-kubeconfig --region us-east-1 --name url-shortener
+```
+
+#### 5. Build and Push Docker Image
+
+```bash
+# Get the ECR repository URL
+export ECR_REPO=$(terraform output -raw ecr_repository_url)
+
+# Authenticate Docker to ECR
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_REPO
+
+# Build and tag the Docker image
+docker build -t url-shortener-api .
+docker tag url-shortener-api:latest $ECR_REPO:latest
+
+# Push the image to ECR
+docker push $ECR_REPO:latest
+```
+
+#### 6. Update Kubernetes Manifests
+
+Replace `${DOCKER_REGISTRY}` in the deployment.yaml file with your ECR repository URL:
+
+```bash
+sed -i "s|\${DOCKER_REGISTRY}|$ECR_REPO|g" k8s/deployment.yaml
+```
+
+#### 7. Create Kubernetes Resources
+
+```bash
+# Apply secrets first
+kubectl apply -f k8s/secrets.yaml
+
+# Apply other resources
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl apply -f k8s/ingress.yaml
+```
+
+#### 8. Verify Deployment
+
+```bash
+kubectl get pods
+kubectl get services
+kubectl get ingress
+```
+
+#### 9. Access the Application
+
+Once the ingress is properly configured and DNS records are updated, you can access your application at:
+
+```
+https://shorturl.example.com
+```
+
+### Cleanup
+
+To destroy all resources created by Terraform:
+
+```bash
+terraform destroy
+```
+
+Note: This will remove all resources including the database. Make sure to backup any important data before running this command.
+
 ## Observability
 
 The application includes built-in observability features that can be enabled via environment variables:
