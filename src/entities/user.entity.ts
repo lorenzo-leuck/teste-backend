@@ -12,8 +12,8 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
-  @Column({ default: 10 })
-  limit: number;
+  @Column({ default: 5 })
+  credits: number;
 
   @Column({ default: 0 })
   usage: number;

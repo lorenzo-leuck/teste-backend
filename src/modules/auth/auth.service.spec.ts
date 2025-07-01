@@ -11,9 +11,10 @@ const mockUser = {
   username: 'testuser',
   email: 'test@example.com',
   password: 'hashedpassword',
-  limit: 10,
-  usage: 5,
+  credits: 5,
+  usage: 3,
   isDeleted: false,
+  urls: [],
   createdAt: new Date(),
   updatedAt: new Date()
 };
@@ -67,8 +68,9 @@ describe('AuthService', () => {
         id: mockUser.id,
         username: mockUser.username,
         email: mockUser.email,
-        limit: mockUser.limit,
+        credits: mockUser.credits,
         usage: mockUser.usage,
+        urls: [],
         createdAt: mockUser.createdAt,
         updatedAt: mockUser.updatedAt
       }]);

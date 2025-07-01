@@ -121,7 +121,7 @@ export class AuthService {
       id: user.id,
       username: user.username,
       email: user.email,
-      limit: user.limit,
+      credits: user.credits,
       usage: user.usage,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt

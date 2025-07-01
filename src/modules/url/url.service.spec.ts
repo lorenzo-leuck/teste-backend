@@ -26,8 +26,8 @@ const mockUser = {
   username: 'testuser',
   email: 'test@example.com',
   password: 'hashedpassword',
-  limit: 10,
-  usage: 5,
+  credits: 5,
+  usage: 3,
   isDeleted: false,
   createdAt: new Date(),
   updatedAt: new Date()

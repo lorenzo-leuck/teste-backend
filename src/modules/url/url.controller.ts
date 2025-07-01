@@ -1,9 +1,10 @@
-import { Controller, Post, Get, Put, Delete, Body, Req, Param, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Req, Param, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
+import { RenewUrlDto } from './dto/renew-url.dto';
 import { Public } from '../auth/public.decorator';
 
 @ApiTags('urls')
@@ -12,6 +13,7 @@ export class UrlController {
   constructor(private readonly urlService: UrlService) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Create a shortened URL (authenticated)' })
   @ApiResponse({ 
     status: 201, 
@@ -21,7 +23,8 @@ export class UrlController {
         id: { type: 'string' },
         shortCode: { type: 'string' },
         originalUrl: { type: 'string' },
-        shortUrl: { type: 'string' }
+        shortUrl: { type: 'string' },
+        expiresAt: { type: 'string', format: 'date-time', nullable: true }
       }
     }
   })
@@ -42,7 +45,8 @@ export class UrlController {
       id: url.id,
       shortCode: url.shortCode,
       originalUrl: url.originalUrl,
-      shortUrl
+      shortUrl,
+      expiresAt: url.expiresAt
     };
   }
 
@@ -57,7 +61,8 @@ export class UrlController {
         id: { type: 'string' },
         shortCode: { type: 'string' },
         originalUrl: { type: 'string' },
-        shortUrl: { type: 'string' }
+        shortUrl: { type: 'string' },
+        expiresAt: { type: 'string', format: 'date-time', nullable: true }
       }
     }
   })
@@ -72,7 +77,8 @@ export class UrlController {
       id: url.id,
       shortCode: url.shortCode,
       originalUrl: url.originalUrl,
-      shortUrl
+      shortUrl,
+      expiresAt: url.expiresAt
     };
   }
 
@@ -91,6 +97,8 @@ export class UrlController {
           originalUrl: { type: 'string' },
           shortUrl: { type: 'string' },
           createdAt: { type: 'string', format: 'date-time' },
+          expiresAt: { type: 'string', format: 'date-time', nullable: true },
+          isExpired: { type: 'boolean' },
           user: {
             type: 'object',
             nullable: true,
@@ -106,6 +114,7 @@ export class UrlController {
   async findAll() {
     const urls = await this.urlService.findAll();
     const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    const now = new Date();
     
     return urls.map(url => {
       // Sanitize user data to avoid exposing sensitive information
@@ -114,6 +123,9 @@ export class UrlController {
         email: url.user.email
       } : null;
       
+      // Check if URL is expired
+      const isExpired = url.expiresAt ? now > url.expiresAt : false;
+      
       return {
         id: url.id,
         shortCode: url.shortCode,
@@ -121,12 +133,15 @@ export class UrlController {
         shortUrl: `${baseUrl}/${url.shortCode}`,
         clicks: url.clickCount,
         createdAt: url.createdAt,
+        expiresAt: url.expiresAt,
+        isExpired,
         user: sanitizedUser
       };
     });
   }
 
   @Get('byUser')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Get URLs for the authenticated user' })
   @ApiResponse({
     status: 200,
@@ -139,7 +154,9 @@ export class UrlController {
           shortCode: { type: 'string' },
           originalUrl: { type: 'string' },
           shortUrl: { type: 'string' },
-          createdAt: { type: 'string', format: 'date-time' }
+          createdAt: { type: 'string', format: 'date-time' },
+          expiresAt: { type: 'string', format: 'date-time', nullable: true },
+          isExpired: { type: 'boolean' }
         }
       }
     }
@@ -152,20 +169,29 @@ export class UrlController {
   async findByUser(@Req() req: any) {
     const userId = req.user.id;
     const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    const now = new Date();
     
     const urls = await this.urlService.findByUserId(userId);
     
-    return urls.map(url => ({
-      id: url.id,
-      shortCode: url.shortCode,
-      originalUrl: url.originalUrl,
-      shortUrl: `${baseUrl}/${url.shortCode}`,
-      clicks: url.clickCount,
-      createdAt: url.createdAt
-    }));
+    return urls.map(url => {
+      // Check if URL is expired
+      const isExpired = url.expiresAt ? now > url.expiresAt : false;
+      
+      return {
+        id: url.id,
+        shortCode: url.shortCode,
+        originalUrl: url.originalUrl,
+        shortUrl: `${baseUrl}/${url.shortCode}`,
+        clicks: url.clickCount,
+        createdAt: url.createdAt,
+        expiresAt: url.expiresAt,
+        isExpired
+      };
+    });
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update a URL created by the authenticated user' })
   @ApiResponse({ status: 200, description: 'URL updated successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - You can only update your own URLs' })
@@ -210,8 +236,50 @@ export class UrlController {
     const userId = req.user.id;
     await this.urlService.softDelete(id, userId);
     
+    return { message: 'URL deleted successfully' };
+  }
+
+  @Put(':id/renew')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Renew expiration for a URL created by the authenticated user' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'URL expiration renewed successfully',
+    schema: {
+      properties: {
+        id: { type: 'string' },
+        shortCode: { type: 'string' },
+        originalUrl: { type: 'string' },
+        shortUrl: { type: 'string' },
+        expiresAt: { type: 'string', format: 'date-time' },
+        updatedAt: { type: 'string', format: 'date-time' }
+      }
+    }
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden - You can only renew your own URLs' })
+  @ApiResponse({ status: 404, description: 'URL not found' })
+  @ApiHeader({
+    name: 'token',
+    description: 'JWT token for authentication',
+    required: true
+  })
+  async renewExpiration(
+    @Param('id') id: string,
+    @Body() renewUrlDto: RenewUrlDto,
+    @Req() req: any
+  ) {
+    const userId = req.user.id;
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    
+    const url = await this.urlService.renewExpiration(id, userId, renewUrlDto.expirationDuration);
+    
     return {
-      message: 'URL deleted successfully'
+      id: url.id,
+      shortCode: url.shortCode,
+      originalUrl: url.originalUrl,
+      shortUrl: `${baseUrl}/${url.shortCode}`,
+      expiresAt: url.expiresAt,
+      updatedAt: url.updatedAt
     };
   }
 }
