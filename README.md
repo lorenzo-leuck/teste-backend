@@ -517,8 +517,42 @@ This URL shortening system is built on a modular architecture using NestJS and T
 This project uses Husky to enforce code quality through Git hooks:
 
 - Pre-commit hook: Automatically runs ESLint and Prettier on staged files before each commit
-- Pre-push hook: Runs the test suite before pushing to the remote repository
+- Pre-push hook: Runs the test suite before pushing to the main branch only
 
+## GitHub Actions
+
+Continuous Integration is set up using GitHub Actions to ensure code quality and prevent regressions:
+
+- Pull Request Checks: All PRs to the main branch are automatically tested
+  - Runs linting and formatting checks
+  - Executes the test suite with concise error reporting
+  - Blocks merging if any checks fail
+
+- Main Branch Checks: Runs after each merge to main
+  - Verifies code quality is maintained on the main branch
+  - Provides immediate feedback if any issues are introduced
+
+The test summary is only applied to the main branch (for pre-push hooks and pull requests), allowing development branches to be more flexible. This ensures strict quality control on the main branch while enabling faster iteration during development.
+
+![GitHub Actions Workflow](assets/github-action.png)
+
+### Example Test Summary Output
+
+The test summary script provides concise error reporting, making it easy to identify and fix issues:
+
+```
+⚠️ Test Failures (Summary):
+
+🔧 Dependency Injection Issues:
+  • Nest can't resolve dependencies of the MockController
+  • Nest can't resolve dependencies of the AuthGuard
+  👉 Fix: Provide missing dependencies in your TestingModule
+
+🔧 TypeScript Issues:
+  • TS2345: Argument of type '{ id: string; shortCode: string; originalUrl: string; isDeleted: boolean; clickCount: number; createdAt: Date; updatedAt: Date; user: { id: string; username: string; email: string; }; }[]' is not assignable to parameter of type 'Url[] | Promise<Url[]>'.
+  • TS2345: Argument of type '{ id: string; shortCode: string; originalUrl: string; isDeleted: boolean; clickCount: number; createdAt: Date; updatedAt: Date; user: { id: string; username: string; email: string; }; }' is not assignable to parameter of type 'Url | Promise<Url | null> | null'.
+  • TS2345: Argument of type '{ originalUrl: string; id: string; shortCode: string; isDeleted: boolean; clickCount: number; createdAt: Date; updatedAt: Date; user: { id: string; username: string; email: string; }; }' is not assignable to parameter of type '(DeepPartial<Url> & Url) | Promise<DeepPartial<Url> & Url>'.
+```
 
 # Considerations
 
@@ -528,6 +562,7 @@ This project uses Husky to enforce code quality through Git hooks:
 * 0.1 - Nest Setup
 * 0.2 - Docker Compose Configuration
 * 0.3 - Git Hooks with Husky
+* 0.4 - GitHub Actions CI
 
 # License
 
