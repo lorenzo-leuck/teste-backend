@@ -16,11 +16,27 @@ jest.stderr.on('data', (data) => {
 
 jest.on('close', (code) => {
   try {
-    // Parse the JSON output from Jest
-    const results = JSON.parse(jsonOutput);
+    // If the exit code is 0, tests passed
+    if (code === 0) {
+      console.log('\n✅ All tests passed!');
+      process.exit(0);
+      return;
+    }
+    
+    // Try to parse the JSON output from Jest
+    let results;
+    try {
+      results = JSON.parse(jsonOutput);
+    } catch (parseError) {
+      // If parsing fails, exit with error
+      console.log('\n⚠️ Test Failures (Summary):');
+      console.log('Failed to parse test results. Check your tests manually.');
+      process.exit(1);
+      return;
+    }
     
     // Check if tests failed
-    if (results.numFailedTests > 0) {
+    if (results && results.numFailedTests > 0) {
       console.log('\n\n======== TEST FAILURE SUMMARY ========');
       console.log(`Failed Tests: ${results.numFailedTests}/${results.numTotalTests}`);
       
@@ -144,8 +160,11 @@ jest.on('close', (code) => {
       
       console.log('\n====================================');
       process.exit(1);
-    } else {
+    } else if (results) {
       console.log('\n✅ All tests passed!');
+      process.exit(0);
+    } else {
+      console.log('\n✅ No test failures detected!');
       process.exit(0);
     }
   } catch (e) {
