@@ -64,9 +64,15 @@ export class UrlService {
     
     const savedUrl = await this.urlRepository.save(url);
 
-    // Update user usage count if authenticated
+    // Update user usage count and decrease credits if authenticated
     if (user) {
       await this.userRepository.increment({ id: user.id }, 'usage', 1);
+      
+      // Get current user to check credits before decrementing
+      const currentUser = await this.userRepository.findOne({ where: { id: user.id } });
+      if (currentUser && currentUser.credits > 0) {
+        await this.userRepository.decrement({ id: user.id }, 'credits', 1);
+      }
     }
 
     return savedUrl;

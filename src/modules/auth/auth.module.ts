@@ -6,6 +6,7 @@ import { User } from '../../entities';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
+import { CreditGuard } from './credit.guard';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthGuard } from './auth.guard';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    CreditGuard,
   ],
   exports: [AuthService],
 })

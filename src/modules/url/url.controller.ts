@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Put, Delete, Body, Req, Param, UseGuards, Res, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
+import { CreditGuard } from '../auth/credit.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/create-url.dto';
@@ -7,6 +8,7 @@ import { UpdateUrlDto } from './dto/update-url.dto';
 import { RenewUrlDto } from './dto/renew-url.dto';
 import { GenerateQrCodeDto } from './dto/generate-qrcode.dto';
 import { Public } from '../auth/public.decorator';
+import { RequiresCredits } from '../auth/requires-credits.decorator';
 import { Response } from 'express';
 
 @ApiTags('urls')
@@ -15,7 +17,8 @@ export class UrlController {
   constructor(private readonly urlService: UrlService) {}
 
   @Post()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, CreditGuard)
+  @RequiresCredits()
   @ApiOperation({ summary: 'Create a shortened URL (authenticated)' })
   @ApiResponse({ 
     status: 201, 

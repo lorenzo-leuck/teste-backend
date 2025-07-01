@@ -174,25 +174,6 @@ token: <your_jwt_token>
 }
 ```
 
-### Generating QR Code for a Shortened URL
-
-**Endpoint:** `POST /api/urls/qrcode`
-
-**Authentication:** None required
-
-**Request Body:**
-
-```json
-{
-  "shortCode": "Ab3x9Z",
-  "format": "png"  // Optional, defaults to "png", can be "png" or "jpeg"
-}
-```
-
-**Response:**
-
-Binary image data (PNG or JPEG) with appropriate Content-Type header.
-
 ### Retrieving All Shortened URLs
 
 **Endpoint:** `GET /api/urls`
@@ -599,6 +580,39 @@ DATADOG_TAGS=env:production,region:us-east # Optional: Comma-separated tags
 ```
 
 When Datadog integration is enabled, the application will automatically send all logs to your Datadog account while maintaining local logging capabilities.
+
+
+## Additional Business Features
+
+### Generating QR Code for a Shortened URL
+
+**Endpoint:** `POST /api/urls/qrcode`
+
+**Authentication:** None required
+
+**Request Body:**
+
+```json
+{
+  "shortCode": "Ab3x9Z",
+  "format": "png"  // Optional, defaults to "png", can be "png" or "jpeg"
+}
+```
+
+**Response:**
+
+Binary image data (PNG or JPEG) with appropriate Content-Type header.
+
+### Credit System
+
+The application implements a credit system for authenticated users:
+
+- Each user starts with 5 credits by default
+- Creating a shortened URL decreases credits by 1
+- Users cannot create URLs if they have 0 credits
+- The system prevents credits from going below 0
+
+When attempting to create a URL with insufficient credits, the API returns a 403 Forbidden response.
 
 
 # Documentation
