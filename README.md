@@ -174,6 +174,25 @@ token: <your_jwt_token>
 }
 ```
 
+### Generating QR Code for a Shortened URL
+
+**Endpoint:** `POST /api/urls/qrcode`
+
+**Authentication:** None required
+
+**Request Body:**
+
+```json
+{
+  "shortCode": "Ab3x9Z",
+  "format": "png"  // Optional, defaults to "png", can be "png" or "jpeg"
+}
+```
+
+**Response:**
+
+Binary image data (PNG or JPEG) with appropriate Content-Type header.
+
 ### Retrieving All Shortened URLs
 
 **Endpoint:** `GET /api/urls`

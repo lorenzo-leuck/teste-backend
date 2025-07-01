@@ -1,11 +1,13 @@
-import { Controller, Post, Get, Put, Delete, Body, Req, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Req, Param, UseGuards, Res, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { RenewUrlDto } from './dto/renew-url.dto';
+import { GenerateQrCodeDto } from './dto/generate-qrcode.dto';
 import { Public } from '../auth/public.decorator';
+import { Response } from 'express';
 
 @ApiTags('urls')
 @Controller('urls')
@@ -237,6 +239,43 @@ export class UrlController {
     await this.urlService.softDelete(id, userId);
     
     return { message: 'URL deleted successfully' };
+  }
+
+  @Post('qrcode')
+  @Public()
+  @ApiOperation({ summary: 'Generate QR code for a shortened URL' })
+  @ApiResponse({
+    status: 200,
+    description: 'QR code generated successfully',
+    content: {
+      'image/png': {
+        schema: {
+          type: 'string',
+          format: 'binary'
+        }
+      },
+      'image/jpeg': {
+        schema: {
+          type: 'string',
+          format: 'binary'
+        }
+      }
+    }
+  })
+  @ApiResponse({ status: 404, description: 'URL not found' })
+  async generateQRCode(@Body() generateQrCodeDto: GenerateQrCodeDto, @Res() res: Response): Promise<void> {
+    const { shortCode, format } = generateQrCodeDto;
+    const qrCodeBuffer = await this.urlService.generateQRCode(shortCode, format);
+    
+    // Set appropriate content type based on format
+    const contentType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+    
+    res.set({
+      'Content-Type': contentType,
+      'Content-Disposition': `inline; filename="qrcode-${shortCode}.${format}"`
+    });
+    
+    res.status(HttpStatus.OK).send(qrCodeBuffer);
   }
 
   @Put(':id/renew')

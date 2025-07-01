@@ -1,4 +1,5 @@
 import { Injectable, ConflictException, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import * as QRCode from 'qrcode';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Url } from '../../entities/url.entity';
@@ -216,5 +217,24 @@ export class UrlService {
     }
     
     return result;
+  }
+
+  async generateQRCode(shortCode: string, format: string = 'png'): Promise<Buffer> {
+    // Find the URL by short code
+    const url = await this.findByShortCode(shortCode);
+    
+    // Construct the full short URL with domain
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    const shortUrl = `${baseUrl}/${url.shortCode}`;
+    
+    // Generate QR code as buffer
+    const options = {
+      type: format === 'jpeg' ? 'image/jpeg' : 'image/png',
+      margin: 1,
+      width: 300,
+      errorCorrectionLevel: 'M'
+    };
+    
+    return QRCode.toBuffer(shortUrl, options);
   }
 }
