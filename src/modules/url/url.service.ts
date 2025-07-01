@@ -133,6 +133,29 @@ export class UrlService {
     return this.urlRepository.save(url);
   }
 
+  async softDelete(id: string, userId: string): Promise<void> {
+    const url = await this.urlRepository.findOne({
+      where: { 
+        id,
+        isDeleted: false 
+      },
+      relations: ['user']
+    });
+    
+    if (!url) {
+      throw new NotFoundException(`URL with ID ${id} not found`);
+    }
+    
+    if (!url.user || url.user.id !== userId) {
+      throw new ForbiddenException('You can only delete your own URLs');
+    }
+    
+    url.isDeleted = true;
+    url.updatedAt = new Date();
+    
+    await this.urlRepository.save(url);
+  }
+
   private generateShortCode(): string {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const codeLength = 6;

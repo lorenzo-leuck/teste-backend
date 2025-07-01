@@ -19,7 +19,7 @@ export class AuthService {
     try {
       const { username, email, password } = signupDto;
       
-      // Check if user exists
+      // Check if user exists (including soft deleted users to prevent username/email reuse)
       const existingUser = await this.userRepository.findOne({
         where: [{ username }, { email }],
       }).catch(err => {
@@ -78,12 +78,15 @@ export class AuthService {
         console.log('[AuthService] Token payload:', payload);
         
         const user = await this.userRepository.findOne({
-          where: { id: payload.id },
+          where: { 
+            id: payload.id,
+            isDeleted: false 
+          },
         });
 
         if (!user) {
-          console.log('[AuthService] User not found for id:', payload.id);
-          throw new UnauthorizedException('User not found');
+          console.log('[AuthService] User not found or deleted for id:', payload.id);
+          throw new UnauthorizedException('User not found or has been deleted');
         }
 
         console.log('[AuthService] User found:', user.username);
@@ -109,19 +112,51 @@ export class AuthService {
   }
 
   async findAllUsers(): Promise<Partial<User>[]> {
-    const users = await this.userRepository.find();
+    const users = await this.userRepository.find({
+      where: { isDeleted: false }
+    });
     
     // Return users without sensitive information
-    return users.map(user => {
-      const { password, ...result } = user;
-      return result;
+    return users.map(user => ({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      limit: user.limit,
+      usage: user.usage,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    }));
+  }
+
+  async softDeleteUser(userId: string, requestingUserId: string): Promise<void> {
+    if (userId !== requestingUserId) {
+      throw new UnauthorizedException('You can only delete your own account');
+    }
+    
+    const user = await this.userRepository.findOne({
+      where: { 
+        id: userId,
+        isDeleted: false 
+      }
     });
+    
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    
+    user.isDeleted = true;
+    user.updatedAt = new Date();
+    
+    await this.userRepository.save(user);
   }
 
   async findUserByUsernameOrEmail(username: string, email: string): Promise<User | null> {
     try {
-      return await this.userRepository.findOne({
-        where: [{ username }, { email }]
+      return this.userRepository.findOne({
+        where: [
+          { username, isDeleted: false },
+          { email, isDeleted: false }
+        ]
       });
     } catch (error) {
       console.error('Error finding user:', error);
@@ -134,13 +169,13 @@ export class AuthService {
       const { email, password } = signinDto;
       
       // Find user by email
-      const user = await this.userRepository.findOne({
-        where: { email }
-      }).catch(err => {
-        console.error('Error finding user:', err);
-        return null;
+      const user = await this.userRepository.findOne({ 
+        where: { 
+          email,
+          isDeleted: false 
+        } 
       });
-
+      
       if (!user) {
         throw new UnauthorizedException('Invalid credentials');
       }

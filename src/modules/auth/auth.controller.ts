@@ -1,5 +1,6 @@
-import { Controller, Post, Get, Body, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
+import { Controller, Post, Get, Delete, Body, Req, Param, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { AuthGuard } from './auth.guard';
+import { ApiOperation, ApiResponse, ApiTags, ApiBody, ApiHeader } from '@nestjs/swagger';
 import { Public } from './public.decorator';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
@@ -114,5 +115,25 @@ export class AuthController {
   })
   async getAllUsers() {
     return this.authService.findAllUsers();
+  }
+
+  @Delete('users/:id')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Delete a user account (soft delete)' })
+  @ApiResponse({ status: 200, description: 'User account deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized - You can only delete your own account' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiHeader({
+    name: 'token',
+    description: 'JWT token for authentication',
+    required: true
+  })
+  async deleteUser(@Param('id') id: string, @Req() req: any) {
+    const requestingUserId = req.user.id;
+    await this.authService.softDeleteUser(id, requestingUserId);
+    
+    return {
+      message: 'User account deleted successfully'
+    };
   }
 }

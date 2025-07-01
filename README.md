@@ -267,6 +267,54 @@ token: <your_jwt_token>
 
 - `403 Forbidden`: If the user tries to update a URL that doesn't belong to them
 - `404 Not Found`: If the URL with the specified ID doesn't exist
+
+### Deleting a Shortened URL
+
+**Endpoint:** `DELETE /api/urls/:id`
+
+**Authentication:** Required (JWT token)
+
+**Path Parameters:**
+- `id`: The ID of the URL to delete
+
+**Response:**
+
+```json
+{
+  "message": "URL deleted successfully"
+}
+```
+
+**Error Responses:**
+
+- `403 Forbidden`: If the user tries to delete a URL that doesn't belong to them
+- `404 Not Found`: If the URL with the specified ID doesn't exist
+
+**Note:** This endpoint performs a soft delete, meaning the URL record is not physically removed from the database but marked as deleted and will no longer be accessible through the API.
+
+### Deleting a User Account
+
+**Endpoint:** `DELETE /auth/users/:id`
+
+**Authentication:** Required (JWT token)
+
+**Path Parameters:**
+- `id`: The ID of the user account to delete
+
+**Response:**
+
+```json
+{
+  "message": "User account deleted successfully"
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized`: If the user tries to delete an account that is not their own
+- `404 Not Found`: If the user with the specified ID doesn't exist
+
+**Note:** This endpoint performs a soft delete, meaning the user record is not physically removed from the database but marked as deleted. All associated URLs will remain in the database but will no longer be accessible.
     "shortCode": "Ab3x9Z",
     "originalUrl": "https://www.example.com/very/long/path/to/resource",
     "shortUrl": "http://localhost:3000/Ab3x9Z",

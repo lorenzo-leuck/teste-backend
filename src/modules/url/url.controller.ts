@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Put, Body, Req, Param, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Req, Param, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { AuthGuard } from '../auth/auth.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/create-url.dto';
@@ -191,6 +192,26 @@ export class UrlController {
       shortUrl: `${baseUrl}/${url.shortCode}`,
       clicks: url.clickCount,
       updatedAt: url.updatedAt
+    };
+  }
+  
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Delete a URL created by the authenticated user' })
+  @ApiResponse({ status: 200, description: 'URL deleted successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden - You can only delete your own URLs' })
+  @ApiResponse({ status: 404, description: 'URL not found' })
+  @ApiHeader({
+    name: 'token',
+    description: 'JWT token for authentication',
+    required: true
+  })
+  async delete(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user.id;
+    await this.urlService.softDelete(id, userId);
+    
+    return {
+      message: 'URL deleted successfully'
     };
   }
 }

@@ -9,9 +9,6 @@ export class Url extends BaseEntity {
   @Column()
   originalUrl: string;
 
-  @Column({ default: false })
-  isDeleted: boolean;
-
   @Column({ default: 0 })
   clickCount: number;
 
