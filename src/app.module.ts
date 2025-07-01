@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { RedirectController } from './redirect.controller';
+import { RedirectMiddleware } from './middleware/redirect.middleware';
 import { databaseConfig } from './config/database.config';
 import { ObservabilityModule } from './observability';
 import { MockModule } from './modules/mock/mock.module';
@@ -21,7 +21,7 @@ import { UrlModule } from './modules/url/url.module';
     AuthModule,
     UrlModule,
   ],
-  controllers: [AppController, RedirectController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule implements NestModule {
@@ -32,11 +32,13 @@ export class AppModule implements NestModule {
       .apply(AuthMiddleware)
       .forRoutes(
         // Protected routes that require authentication
-        { path: 'mock/auth', method: RequestMethod.GET },
-        { path: 'urls', method: RequestMethod.POST },
-        { path: 'urls/byUser', method: RequestMethod.GET },
-        { path: 'urls/:id', method: RequestMethod.PUT },
-        { path: 'urls/:id', method: RequestMethod.DELETE }
+        { path: 'api/urls', method: RequestMethod.POST },
+        { path: 'api/urls/byUser', method: RequestMethod.GET },
       );
+    
+    // Apply redirect middleware to all routes
+    consumer
+      .apply(RedirectMiddleware)
+      .forRoutes('*');
   }
 }

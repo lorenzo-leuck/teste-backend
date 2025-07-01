@@ -1,16 +1,11 @@
-import { Controller, Get, HttpStatus, Param, Res, NotFoundException } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { Controller, Get, HttpStatus } from '@nestjs/common';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
-import { UrlService } from './modules/url/url.service';
-import { Response } from 'express';
 import { Public } from './modules/auth/public.decorator';
 
 @Controller()
 export class AppController {
-  constructor(
-    private readonly appService: AppService,
-    private readonly urlService: UrlService
-  ) {}
+  constructor(private readonly appService: AppService) {}
 
   @Public()
   @Get()
@@ -26,39 +21,5 @@ export class AppController {
   @ApiResponse({ status: HttpStatus.OK, description: 'API is healthy' })
   healthCheck(): string {
     return 'OK';
-  }
-
-  @Public()
-  @Get(':shortCode')
-  @ApiOperation({ summary: 'Redirect to original URL' })
-  @ApiResponse({ 
-    status: 302, 
-    description: 'Redirect to the original URL'
-  })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'Short URL not found'
-  })
-  @ApiParam({
-    name: 'shortCode',
-    required: true,
-    description: 'The short code of the URL',
-    type: String
-  })
-  async redirect(
-    @Param('shortCode') shortCode: string,
-    @Res() res: Response
-  ) {
-    try {
-      const url = await this.urlService.findByShortCode(shortCode);
-      
-      // Redirect to the original URL
-      return res.redirect(url.originalUrl);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new NotFoundException(`URL with short code ${shortCode} not found`);
-    }
   }
 }

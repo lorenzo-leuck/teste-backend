@@ -95,6 +95,21 @@ export class UrlService {
     return url;
   }
 
+  async incrementClickCount(shortCode: string): Promise<void> {
+    const url = await this.urlRepository.findOne({
+      where: { 
+        shortCode,
+        isDeleted: false 
+      }
+    });
+    
+    if (!url) {
+      throw new NotFoundException(`URL with short code ${shortCode} not found`);
+    }
+    
+    await this.urlRepository.increment({ id: url.id }, 'clickCount', 1);
+  }
+
   private generateShortCode(): string {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const codeLength = 6;

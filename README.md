@@ -274,6 +274,8 @@ For example, visiting `http://localhost:3000/Ab3x9Z` will redirect to the origin
 - The URL redirection is implemented at the root level, bypassing the global API prefix
 - This allows shortened URLs to be accessed directly through the base domain
 - The redirection controller handles all requests matching the pattern `/:shortCode`
+- Each redirection increments the click count for the URL
+- Click statistics are included in URL responses
 
 ## Observability
 

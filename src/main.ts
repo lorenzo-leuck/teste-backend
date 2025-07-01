@@ -28,11 +28,9 @@ async function bootstrap() {
   // Add global exception filter to prevent server crashes
   app.useGlobalFilters(new AllExceptionsFilter());
   
+  // Set global prefix for all routes except root path
   app.setGlobalPrefix('api', {
-    exclude: [
-      { path: ':shortCode', method: RequestMethod.GET },
-      { path: '', method: RequestMethod.GET }
-    ],
+    exclude: [{ path: '', method: RequestMethod.GET }],
   });
   
   // Setup Swagger

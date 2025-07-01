@@ -117,6 +117,7 @@ export class UrlController {
         shortCode: url.shortCode,
         originalUrl: url.originalUrl,
         shortUrl: `${baseUrl}/${url.shortCode}`,
+        clicks: url.clickCount,
         createdAt: url.createdAt,
         user: sanitizedUser
       };
@@ -160,6 +161,7 @@ export class UrlController {
       shortCode: url.shortCode,
       originalUrl: url.originalUrl,
       shortUrl: `${baseUrl}/${url.shortCode}`,
+      clicks: url.clickCount,
       createdAt: url.createdAt
     }));
   }
