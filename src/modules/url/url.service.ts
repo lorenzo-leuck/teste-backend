@@ -220,21 +220,21 @@ export class UrlService {
   }
 
   async generateQRCode(shortCode: string, format: string = 'png'): Promise<Buffer> {
-    // Find the URL by short code
-    const url = await this.findByShortCode(shortCode);
+    const shortUrl = `${process.env.APP_URL || 'http://localhost:3000'}/api/v1/${shortCode}`;
     
-    // Construct the full short URL with domain
-    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-    const shortUrl = `${baseUrl}/${url.shortCode}`;
-    
-    // Generate QR code as buffer
-    const options = {
-      type: format === 'jpeg' ? 'image/jpeg' : 'image/png',
-      margin: 1,
-      width: 300,
-      errorCorrectionLevel: 'M'
-    };
-    
-    return QRCode.toBuffer(shortUrl, options);
+    try {
+      // Create a promise-based wrapper around QRCode.toBuffer
+      return await new Promise<Buffer>((resolve, reject) => {
+        QRCode.toBuffer(shortUrl, (err, buffer) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(buffer);
+          }
+        });
+      });
+    } catch (error) {
+      throw new BadRequestException('Failed to generate QR code');
+    }
   }
 }
