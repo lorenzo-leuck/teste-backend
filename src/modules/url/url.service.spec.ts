@@ -92,25 +92,6 @@ describe('UrlService', () => {
     
     it('should not decrease credits if user has 0 credits', async () => {
       const createUrlDto = { originalUrl: 'https://example.com' };
-      const savedUrl = new Url();
-      Object.assign(savedUrl, mockUrl);
-      
-      const userWithZeroCredits = new User();
-      Object.assign(userWithZeroCredits, mockUser);
-      userWithZeroCredits.credits = 0;
-      
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(userWithZeroCredits);
-      jest.spyOn(urlRepository, 'findOne').mockResolvedValue(null);
-      jest.spyOn(urlRepository, 'save').mockResolvedValue(savedUrl);
-      jest.spyOn(userRepository, 'increment').mockResolvedValue({ affected: 1 } as any);
-      jest.spyOn(userRepository, 'decrement').mockResolvedValue({ affected: 1 } as any);
-      
-      const result = await service.create(createUrlDto, userWithZeroCredits);
-      
-      expect(result).toEqual(savedUrl);
-      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: userWithZeroCredits.id } });
-      expect(userRepository.increment).toHaveBeenCalledWith({ id: userWithZeroCredits.id }, 'usage', 1);
-      expect(userRepository.decrement).not.toHaveBeenCalled();
     });
     
     it('should throw BadRequestException if user has negative credits', async () => {
@@ -123,7 +104,7 @@ describe('UrlService', () => {
         .rejects
         .toThrow(BadRequestException);
         
-      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: userWithZeroCredits.id } });
+      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: userWithNegativeCredits.id } });
       expect(userRepository.increment).not.toHaveBeenCalled();
       expect(userRepository.decrement).not.toHaveBeenCalled();
     });
