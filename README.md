@@ -109,20 +109,7 @@ Alternatively, you can use the custom header format for Swagger UI testing:
 token: <your_jwt_token>
 ```
 
-### Testing Authentication Flow
 
-To test the complete authentication flow, run:
-
-```bash
-npm run test:e2e -- test/auth-flow.e2e-spec.ts
-```
-
-This test verifies:
-1. Public endpoint access
-2. Protected endpoint rejection without token
-3. User registration
-4. User signin
-5. Protected endpoint access with valid token
   
 
 ## URL Shortening
@@ -393,6 +380,52 @@ For example, visiting `http://localhost:3000/Ab3x9Z` will redirect to the origin
 - Each redirection increments the click count for the URL
 - Click statistics are included in URL responses
 
+
+## Tests
+
+The application includes comprehensive test coverage for all major functionality. Tests are written using Jest and the NestJS testing utilities.
+
+### Authentication Flow
+
+To test the complete authentication flow, run:
+
+```bash
+npm run test:e2e -- test/auth-flow.e2e-spec.ts
+```
+
+This test verifies:
+1. Public endpoint access
+2. Protected endpoint rejection without token
+3. User registration
+4. User signin
+5. Protected endpoint access with valid token
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run specific test files
+npm test -- src/modules/url/url.service.spec.ts
+npm test -- src/modules/auth/auth.service.spec.ts
+npm test -- src/modules/url/url.controller.spec.ts
+npm test -- src/modules/auth/auth.controller.spec.ts
+
+# Run tests with coverage report
+npm test -- --coverage
+```
+
+### Test Coverage
+
+The test suite covers:
+
+- URL service methods including soft delete functionality
+- Authentication service methods including user management and soft delete
+- URL controller endpoints including CRUD operations
+- Authentication controller endpoints including user registration and deletion
+- Middleware functionality for URL redirection and click tracking
+
 ## Observability
 
 The application includes built-in observability features that can be enabled via environment variables:
@@ -465,8 +498,6 @@ The application uses a PostgreSQL relational database with the following schema:
 
 ## System Architecture
 
-
-## Shortening Algorithm
 
 # Considerations
 
