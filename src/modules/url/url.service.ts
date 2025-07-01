@@ -70,6 +70,16 @@ export class UrlService {
     });
   }
 
+  async findByUserId(userId: string): Promise<Url[]> {
+    return this.urlRepository.find({
+      where: { 
+        user: { id: userId },
+        isDeleted: false 
+      },
+      order: { createdAt: 'DESC' }
+    });
+  }
+
   private generateShortCode(): string {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const codeLength = 6;

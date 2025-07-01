@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Req, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/create-url.dto';
@@ -121,5 +121,46 @@ export class UrlController {
         user: sanitizedUser
       };
     });
+  }
+
+  @Get('byUser')
+  @ApiOperation({ summary: 'Get URLs for the authenticated user' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of URLs for the authenticated user',
+    schema: {
+      type: 'array',
+      items: {
+        properties: {
+          id: { type: 'string' },
+          shortCode: { type: 'string' },
+          originalUrl: { type: 'string' },
+          shortUrl: { type: 'string' },
+          createdAt: { type: 'string', format: 'date-time' }
+        }
+      }
+    }
+  })
+  @ApiHeader({
+    name: 'token',
+    required: true,
+    description: 'JWT token for authentication'
+  })
+  async findMyUrls(@Req() req: any) {
+    const user = req.user;
+    if (!user) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+    
+    const urls = await this.urlService.findByUserId(user.id);
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    
+    return urls.map(url => ({
+      id: url.id,
+      shortCode: url.shortCode,
+      originalUrl: url.originalUrl,
+      shortUrl: `${baseUrl}/${url.shortCode}`,
+      createdAt: url.createdAt
+    }));
   }
 }

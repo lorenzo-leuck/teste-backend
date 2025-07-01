@@ -221,6 +221,41 @@ token: <your_jwt_token>
 
 **Note:** The response includes all URLs in the system, with user information for authenticated URLs and `null` for URLs created through the public endpoint.
 
+### Retrieving User's Shortened URLs
+
+**Endpoint:** `GET /api/urls/byUser`
+
+**Authentication:** Required (JWT token)
+
+To retrieve URLs for the authenticated user, include your JWT token in the request header:
+
+```
+token: <your_jwt_token>
+```
+
+**Response:**
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "shortCode": "Ab3x9Z",
+    "originalUrl": "https://www.example.com/very/long/path/to/resource",
+    "shortUrl": "http://localhost:3000/Ab3x9Z",
+    "createdAt": "2025-06-30T23:30:00.000Z"
+  },
+  {
+    "id": "660e8400-e29b-41d4-a716-446655440001",
+    "shortCode": "Xy7z9A",
+    "originalUrl": "https://www.example.com/another/path",
+    "shortUrl": "http://localhost:3000/Xy7z9A",
+    "createdAt": "2025-06-30T23:25:00.000Z"
+  }
+]
+```
+
+**Note:** This endpoint only returns URLs created by the authenticated user.
+
 ## Observability
 
 The application includes built-in observability features that can be enabled via environment variables:

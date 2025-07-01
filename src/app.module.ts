@@ -36,6 +36,7 @@ export class AppModule implements NestModule {
         // Protected routes that require authentication
         { path: 'mock/auth', method: RequestMethod.GET },
         { path: 'urls', method: RequestMethod.POST },
+        { path: 'urls/my', method: RequestMethod.GET },
         { path: 'urls/:id', method: RequestMethod.PUT },
         { path: 'urls/:id', method: RequestMethod.DELETE }
       );
