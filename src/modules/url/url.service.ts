@@ -250,9 +250,19 @@ export class UrlService {
       select: ['originalUrl', 'clickCount']
     });
     
-    return urls.map(url => ({
-      originalUrl: url.originalUrl,
-      clickCount: url.clickCount
+    // Create a map to aggregate click counts by URL
+    const urlMap = new Map<string, number>();
+    
+    // Aggregate click counts for duplicate URLs
+    urls.forEach(url => {
+      const currentCount = urlMap.get(url.originalUrl) || 0;
+      urlMap.set(url.originalUrl, currentCount + url.clickCount);
+    });
+    
+    // Convert map to array of objects
+    return Array.from(urlMap.entries()).map(([originalUrl, clickCount]) => ({
+      originalUrl,
+      clickCount
     }));
   }
 }

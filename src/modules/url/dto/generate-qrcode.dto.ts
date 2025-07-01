@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class GenerateQrCodeDto {
   @ApiProperty({
     description: 'The short code of the URL',
-    example: 'abc123',
+    example: 'ad8asd67',
   })
   @IsString()
   shortCode: string;
