@@ -517,7 +517,20 @@ This URL shortening system is built on a modular architecture using NestJS and T
 This project uses Husky to enforce code quality through Git hooks:
 
 - Pre-commit hook: Automatically runs ESLint and Prettier on staged files before each commit
-- Pre-push hook: Runs the test suite before pushing to the remote repository
+- Pre-push hook: Runs the test suite before pushing to the main branch only
+
+## GitHub Actions
+
+Continuous Integration is set up using GitHub Actions to ensure code quality and prevent regressions:
+
+- Pull Request Checks: All PRs to the main branch are automatically tested
+  - Runs linting and formatting checks
+  - Executes the test suite with concise error reporting
+  - Blocks merging if any checks fail
+
+- Main Branch Checks: Runs after each merge to main
+  - Verifies code quality is maintained on the main branch
+  - Provides immediate feedback if any issues are introduced
 
 
 # Considerations
@@ -528,6 +541,7 @@ This project uses Husky to enforce code quality through Git hooks:
 * 0.1 - Nest Setup
 * 0.2 - Docker Compose Configuration
 * 0.3 - Git Hooks with Husky
+* 0.4 - GitHub Actions CI
 
 # License
 

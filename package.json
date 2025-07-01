@@ -21,7 +21,8 @@
     "docker:up": "docker compose up",
     "docker:down": "docker compose down",
     "install:legacy": "npm install --legacy-peer-deps",
-    "prepare": "husky && husky install"
+    "prepare": "husky && husky install",
+    "format:check": "node scripts/format-check.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
