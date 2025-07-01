@@ -16,7 +16,7 @@ URL shortening system
 </p>
 
 
-## Candidate: 
+## Author: 
 <a href="https://www.linkedin.com/in/lorenzo-leuck/">Lorenzo Leuck</a>
 
 
@@ -47,6 +47,7 @@ cp .env.example .env
 npm run docker:up
 
 # The application will be available at http://localhost:3000
+# Swagger ui will be available at http://localhost:3000/api/docs
 # PostgreSQL will be available at localhost:5433
 # PgAdmin will be available at http://localhost:5050 (login: admin@admin.com / password: admin)
 ```
@@ -66,10 +67,119 @@ npm run test:e2e
 
 # Deployment
 
+This project includes configurations for deploying to a Kubernetes cluster on AWS using Terraform.
+
+## Prerequisites
+
+- [Terraform](https://www.terraform.io/downloads.html) (version 1.0.0 or higher)
+- [AWS CLI](https://aws.amazon.com/cli/) configured with appropriate credentials
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) for interacting with the Kubernetes cluster
+
+## Deployment Steps
+
+### 1. Initialize Terraform
 
 ```bash
+cd terraform
+terraform init
+```
+### 2. Configure Variables
+
+Create a `terraform.tfvars` file with your specific values:
 
 ```
+aws_region   = "us-east-1"
+cluster_name = "url-shortener"
+db_name      = "urlshortener"
+db_username  = "postgres"
+db_password  = "your-secure-password"
+```
+
+### 3. Deploy Infrastructure
+
+```bash
+terraform plan
+terraform apply
+```
+
+This will create:
+- An EKS cluster on AWS
+- A VPC with public and private subnets
+- A PostgreSQL RDS instance
+- An ECR repository for Docker images
+
+### 4. Configure kubectl
+
+After the infrastructure is deployed, configure kubectl to connect to your EKS cluster:
+
+```bash
+aws eks update-kubeconfig --region us-east-1 --name url-shortener
+```
+
+### 5. Build and Push Docker Image
+
+```bash
+# Get the ECR repository URL
+export ECR_REPO=$(terraform output -raw ecr_repository_url)
+
+# Authenticate Docker to ECR
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_REPO
+
+# Build and tag the Docker image
+docker build -t url-shortener-api .
+docker tag url-shortener-api:latest $ECR_REPO:latest
+
+# Push the image to ECR
+docker push $ECR_REPO:latest
+```
+
+### 6. Update Kubernetes Manifests
+
+Replace `${DOCKER_REGISTRY}` in the deployment.yaml file with your ECR repository URL:
+
+```bash
+sed -i "s|\${DOCKER_REGISTRY}|$ECR_REPO|g" k8s/deployment.yaml
+```
+
+### 7. Create Kubernetes Resources
+
+```bash
+# Apply secrets first
+kubectl apply -f k8s/secrets.yaml
+
+# Apply other resources
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl apply -f k8s/ingress.yaml
+```
+
+### 8. Verify Deployment
+
+```bash
+kubectl get pods
+kubectl get services
+kubectl get ingress
+```
+
+### 9. Access the Application
+
+Once the ingress is properly configured and DNS records are updated, you can access your application at:
+
+```
+https://shorturl.example.com
+```
+
+## Cleanup
+
+To destroy all resources created by Terraform:
+
+```bash
+terraform destroy
+```
+
+Note: This will remove all resources including the database. Make sure to backup any important data before running this command.
+
 
 # Resources
 The application is containerized using Docker and orchestrated with Docker Compose. The setup includes:
@@ -426,122 +536,6 @@ The test suite covers:
 - Authentication controller endpoints including user registration and deletion
 - Middleware functionality for URL redirection and click tracking
 
-## Cloud Deployment
-
-This project includes configurations for deploying to a Kubernetes cluster on AWS using Terraform.
-
-### Prerequisites
-
-- [Terraform](https://www.terraform.io/downloads.html) (version 1.0.0 or higher)
-- [AWS CLI](https://aws.amazon.com/cli/) configured with appropriate credentials
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) for interacting with the Kubernetes cluster
-
-### Deployment Steps
-
-#### 1. Initialize Terraform
-
-```bash
-cd terraform
-terraform init
-```
-
-#### 2. Configure Variables
-
-Create a `terraform.tfvars` file with your specific values:
-
-```
-aws_region   = "us-east-1"
-cluster_name = "url-shortener"
-db_name      = "urlshortener"
-db_username  = "postgres"
-db_password  = "your-secure-password"
-```
-
-#### 3. Deploy Infrastructure
-
-```bash
-terraform plan
-terraform apply
-```
-
-This will create:
-- An EKS cluster on AWS
-- A VPC with public and private subnets
-- A PostgreSQL RDS instance
-- An ECR repository for Docker images
-
-#### 4. Configure kubectl
-
-After the infrastructure is deployed, configure kubectl to connect to your EKS cluster:
-
-```bash
-aws eks update-kubeconfig --region us-east-1 --name url-shortener
-```
-
-#### 5. Build and Push Docker Image
-
-```bash
-# Get the ECR repository URL
-export ECR_REPO=$(terraform output -raw ecr_repository_url)
-
-# Authenticate Docker to ECR
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_REPO
-
-# Build and tag the Docker image
-docker build -t url-shortener-api .
-docker tag url-shortener-api:latest $ECR_REPO:latest
-
-# Push the image to ECR
-docker push $ECR_REPO:latest
-```
-
-#### 6. Update Kubernetes Manifests
-
-Replace `${DOCKER_REGISTRY}` in the deployment.yaml file with your ECR repository URL:
-
-```bash
-sed -i "s|\${DOCKER_REGISTRY}|$ECR_REPO|g" k8s/deployment.yaml
-```
-
-#### 7. Create Kubernetes Resources
-
-```bash
-# Apply secrets first
-kubectl apply -f k8s/secrets.yaml
-
-# Apply other resources
-kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/service.yaml
-kubectl apply -f k8s/ingress.yaml
-```
-
-#### 8. Verify Deployment
-
-```bash
-kubectl get pods
-kubectl get services
-kubectl get ingress
-```
-
-#### 9. Access the Application
-
-Once the ingress is properly configured and DNS records are updated, you can access your application at:
-
-```
-https://shorturl.example.com
-```
-
-### Cleanup
-
-To destroy all resources created by Terraform:
-
-```bash
-terraform destroy
-```
-
-Note: This will remove all resources including the database. Make sure to backup any important data before running this command.
-
 ## Observability
 
 The application includes built-in observability features that can be enabled via environment variables:
@@ -638,14 +632,6 @@ When attempting to create a URL with insufficient credits, the API returns a 403
 ```
 
 
-# Documentation
-
-Complete API documentation is available through Swagger UI:
-
-```
-http://localhost:3000/api/docs
-```
-
 ## Database Schema
 
 The application uses a PostgreSQL relational database with the following schema:
@@ -655,7 +641,7 @@ The application uses a PostgreSQL relational database with the following schema:
 - `username` (String): Unique username for authentication
 - `email` (String): Unique email address for the user
 - `password` (String): Hashed password for secure authentication
-- `limit` (Number): Maximum number of URLs a user can create (default: 10)
+- `credits` (Number): Maximum number of URLs a user can create (default: 5)
 - `usage` (Number): Current number of URLs created by the user (default: 0)
 - `urls` (Relation): One-to-many relation with Url entity
 - `createdAt` (Date): Creation timestamp
@@ -680,7 +666,7 @@ The application uses a PostgreSQL relational database with the following schema:
 - `createdAt` (Date): Click timestamp
 
 ## Folder Structure
-
+- `assets/`: Videos about the project
 - `src/`: Source code of the application
   - `config/`: Configuration files and environment setup
   - `entities/`: Database entity definitions
