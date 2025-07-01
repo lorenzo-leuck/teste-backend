@@ -6,32 +6,30 @@ import { Url } from '../../entities/url.entity';
 import { User } from '../../entities/user.entity';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 
-const mockUrl = {
-  id: '550e8400-e29b-41d4-a716-446655440000',
-  shortCode: 'Ab3x9Z',
-  originalUrl: 'https://example.com',
-  isDeleted: false,
-  clickCount: 5,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  user: {
-    id: '8a8a8a8a-8a8a-8a8a-8a8a-8a8a8a8a8a8a',
-    username: 'testuser',
-    email: 'test@example.com'
-  }
-};
-
-const mockUser = {
+const mockUrl = new Url();
+mockUrl.id = '550e8400-e29b-41d4-a716-446655440000';
+mockUrl.shortCode = 'Ab3x9Z';
+mockUrl.originalUrl = 'https://example.com';
+mockUrl.isDeleted = false;
+mockUrl.clickCount = 5;
+mockUrl.createdAt = new Date();
+mockUrl.updatedAt = new Date();
+mockUrl.user = {
   id: '8a8a8a8a-8a8a-8a8a-8a8a-8a8a8a8a8a8a',
   username: 'testuser',
-  email: 'test@example.com',
-  password: 'hashedpassword',
-  credits: 5,
-  usage: 3,
-  isDeleted: false,
-  createdAt: new Date(),
-  updatedAt: new Date()
-};
+  email: 'test@example.com'
+} as User;
+
+const mockUser = new User();
+mockUser.id = '8a8a8a8a-8a8a-8a8a-8a8a-8a8a8a8a8a8a';
+mockUser.username = 'testuser';
+mockUser.email = 'test@example.com';
+mockUser.password = 'hashedpassword';
+mockUser.credits = 5;
+mockUser.usage = 3;
+mockUser.isDeleted = false;
+mockUser.createdAt = new Date();
+mockUser.updatedAt = new Date();
 
 describe('UrlService', () => {
   let service: UrlService;
@@ -74,7 +72,7 @@ describe('UrlService', () => {
   describe('findAll', () => {
     it('should return all non-deleted URLs', async () => {
       const urls = [mockUrl];
-      jest.spyOn(urlRepository, 'find').mockResolvedValue(urls);
+      jest.spyOn(urlRepository, 'find').mockResolvedValue(urls as Url[]);
 
       const result = await service.findAll();
       
@@ -91,7 +89,7 @@ describe('UrlService', () => {
     it('should return all non-deleted URLs for a specific user', async () => {
       const userId = mockUser.id;
       const urls = [mockUrl];
-      jest.spyOn(urlRepository, 'find').mockResolvedValue(urls);
+      jest.spyOn(urlRepository, 'find').mockResolvedValue(urls as Url[]);
 
       const result = await service.findByUserId(userId);
       
@@ -109,7 +107,7 @@ describe('UrlService', () => {
   describe('findByShortCode', () => {
     it('should return a URL by short code if not deleted', async () => {
       const shortCode = mockUrl.shortCode;
-      jest.spyOn(urlRepository, 'findOne').mockResolvedValue(mockUrl);
+      jest.spyOn(urlRepository, 'findOne').mockResolvedValue(mockUrl as Url);
 
       const result = await service.findByShortCode(shortCode);
       
@@ -135,10 +133,12 @@ describe('UrlService', () => {
       const id = mockUrl.id;
       const userId = mockUser.id;
       const originalUrl = 'https://updated-example.com';
-      const updatedUrl = { ...mockUrl, originalUrl };
+      const updatedUrl = new Url();
+      Object.assign(updatedUrl, mockUrl);
+      updatedUrl.originalUrl = originalUrl;
       
-      jest.spyOn(urlRepository, 'findOne').mockResolvedValue(mockUrl);
-      jest.spyOn(urlRepository, 'save').mockResolvedValue(updatedUrl);
+      jest.spyOn(urlRepository, 'findOne').mockResolvedValue(mockUrl as Url);
+      jest.spyOn(urlRepository, 'save').mockResolvedValue(updatedUrl as Url);
 
       const result = await service.update(id, userId, originalUrl);
       
@@ -178,10 +178,12 @@ describe('UrlService', () => {
     it('should soft delete URL if user is owner', async () => {
       const id = mockUrl.id;
       const userId = mockUser.id;
-      const deletedUrl = { ...mockUrl, isDeleted: true };
+      const deletedUrl = new Url();
+      Object.assign(deletedUrl, mockUrl);
+      deletedUrl.isDeleted = true;
       
-      jest.spyOn(urlRepository, 'findOne').mockResolvedValue(mockUrl);
-      jest.spyOn(urlRepository, 'save').mockResolvedValue(deletedUrl);
+      jest.spyOn(urlRepository, 'findOne').mockResolvedValue(mockUrl as Url);
+      jest.spyOn(urlRepository, 'save').mockResolvedValue(deletedUrl as Url);
 
       await service.softDelete(id, userId);
       

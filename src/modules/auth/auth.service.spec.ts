@@ -70,7 +70,6 @@ describe('AuthService', () => {
         email: mockUser.email,
         credits: mockUser.credits,
         usage: mockUser.usage,
-        urls: [],
         createdAt: mockUser.createdAt,
         updatedAt: mockUser.updatedAt
       }]);
