@@ -6,13 +6,13 @@ URL shortening system
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-<img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-<img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
-<img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
-<img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
-<img src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" />
-<img src="https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white" alt="Terraform" />
-<img src="https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white" alt="Jest" />
+<img src="https://img.shields.io/badge/TypeScript-v5.7.3-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript v5.7.3" />
+<img src="https://img.shields.io/badge/Node.js-v22-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js v22" />
+<img src="https://img.shields.io/badge/NestJS-v11.0.1-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS v11.0.1" />
+<img src="https://img.shields.io/badge/Docker-latest-2CA5E0?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+<img src="https://img.shields.io/badge/Kubernetes-latest-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" />
+<img src="https://img.shields.io/badge/Terraform-latest-7B42BC?style=for-the-badge&logo=terraform&logoColor=white" alt="Terraform" />
+<img src="https://img.shields.io/badge/Jest-v29.7.0-C21325?style=for-the-badge&logo=jest&logoColor=white" alt="Jest v29.7.0" />
 </p>
 
 
@@ -742,7 +742,7 @@ The test summary script provides concise error reporting, making it easy to iden
 
 # Considerations
 
-
+This project represents a culmination of technologies and methodologies I've learned and implemented over the years, combining modern backend development practices with DevOps principles to create a robust, scalable URL shortening service. While designed with scalability in mind, horizontal scaling presents challenges like short code collision and database bottlenecks that would require distributed solutions. On the business side, features like analytics, custom short codes, and QR generation provide opportunities for monetizing the system through premium tiers.
 
 # Release History
 * 0.1 - Nest Setup
