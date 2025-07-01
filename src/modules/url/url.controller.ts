@@ -1,7 +1,8 @@
-import { Controller, Post, Get, Body, Req, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Get, Put, Body, Req, Param, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { UrlService } from './url.service';
 import { CreateUrlDto } from './dto/create-url.dto';
+import { UpdateUrlDto } from './dto/update-url.dto';
 import { Public } from '../auth/public.decorator';
 
 @ApiTags('urls')
@@ -144,17 +145,14 @@ export class UrlController {
   })
   @ApiHeader({
     name: 'token',
-    required: true,
-    description: 'JWT token for authentication'
+    description: 'JWT token for authentication',
+    required: true
   })
-  async findMyUrls(@Req() req: any) {
-    const user = req.user;
-    if (!user) {
-      throw new UnauthorizedException('User not authenticated');
-    }
-    
-    const urls = await this.urlService.findByUserId(user.id);
+  async findByUser(@Req() req: any) {
+    const userId = req.user.id;
     const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    
+    const urls = await this.urlService.findByUserId(userId);
     
     return urls.map(url => ({
       id: url.id,
@@ -164,5 +162,35 @@ export class UrlController {
       clicks: url.clickCount,
       createdAt: url.createdAt
     }));
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update a URL created by the authenticated user' })
+  @ApiResponse({ status: 200, description: 'URL updated successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden - You can only update your own URLs' })
+  @ApiResponse({ status: 404, description: 'URL not found' })
+  @ApiHeader({
+    name: 'token',
+    description: 'JWT token for authentication',
+    required: true
+  })
+  async update(
+    @Param('id') id: string,
+    @Body() updateUrlDto: UpdateUrlDto,
+    @Req() req: any
+  ) {
+    const userId = req.user.id;
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    
+    const url = await this.urlService.update(id, userId, updateUrlDto.originalUrl);
+    
+    return {
+      id: url.id,
+      shortCode: url.shortCode,
+      originalUrl: url.originalUrl,
+      shortUrl: `${baseUrl}/${url.shortCode}`,
+      clicks: url.clickCount,
+      updatedAt: url.updatedAt
+    };
   }
 }

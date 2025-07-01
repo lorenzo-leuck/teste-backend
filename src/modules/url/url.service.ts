@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Url } from '../../entities/url.entity';
@@ -108,6 +108,29 @@ export class UrlService {
     }
     
     await this.urlRepository.increment({ id: url.id }, 'clickCount', 1);
+  }
+
+  async update(id: string, userId: string, originalUrl: string): Promise<Url> {
+    const url = await this.urlRepository.findOne({
+      where: { 
+        id,
+        isDeleted: false 
+      },
+      relations: ['user']
+    });
+    
+    if (!url) {
+      throw new NotFoundException(`URL with ID ${id} not found`);
+    }
+    
+    if (!url.user || url.user.id !== userId) {
+      throw new ForbiddenException('You can only update your own URLs');
+    }
+    
+    url.originalUrl = originalUrl;
+    url.updatedAt = new Date();
+    
+    return this.urlRepository.save(url);
   }
 
   private generateShortCode(): string {

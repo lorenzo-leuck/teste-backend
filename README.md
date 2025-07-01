@@ -202,6 +202,74 @@ token: <your_jwt_token>
     "shortCode": "Ab3x9Z",
     "originalUrl": "https://www.example.com/very/long/path/to/resource",
     "shortUrl": "http://localhost:3000/Ab3x9Z",
+    "clicks": 5,
+    "createdAt": "2023-07-01T12:00:00.000Z",
+    "user": {
+      "id": "8a8a8a8a-8a8a-8a8a-8a8a-8a8a8a8a8a8a",
+      "email": "user@example.com"
+    }
+  }
+]
+```
+
+### Retrieving User's Shortened URLs
+
+**Endpoint:** `GET /api/urls/byUser`
+
+**Authentication:** Required (JWT token)
+
+**Response:**
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "shortCode": "Ab3x9Z",
+    "originalUrl": "https://www.example.com/very/long/path/to/resource",
+    "shortUrl": "http://localhost:3000/Ab3x9Z",
+    "clicks": 5,
+    "createdAt": "2023-07-01T12:00:00.000Z"
+  }
+]
+```
+
+### Updating a Shortened URL
+
+**Endpoint:** `PUT /api/urls/:id`
+
+**Authentication:** Required (JWT token)
+
+**Path Parameters:**
+- `id`: The ID of the URL to update
+
+**Request Body:**
+
+```json
+{
+  "originalUrl": "https://www.example.com/updated/path/to/resource"
+}
+```
+
+**Response:**
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "shortCode": "Ab3x9Z",
+  "originalUrl": "https://www.example.com/updated/path/to/resource",
+  "shortUrl": "http://localhost:3000/Ab3x9Z",
+  "clicks": 5,
+  "updatedAt": "2023-07-01T14:30:00.000Z"
+}
+```
+
+**Error Responses:**
+
+- `403 Forbidden`: If the user tries to update a URL that doesn't belong to them
+- `404 Not Found`: If the URL with the specified ID doesn't exist
+    "shortCode": "Ab3x9Z",
+    "originalUrl": "https://www.example.com/very/long/path/to/resource",
+    "shortUrl": "http://localhost:3000/Ab3x9Z",
     "createdAt": "2025-06-30T23:30:00.000Z",
     "user": {
       "id": "a1b2c3d4-e5f6-4a5b-8c7d-9e0f1a2b3c4d",
