@@ -127,9 +127,9 @@ This test verifies:
 
 ## URL Shortening
 
-The application provides URL shortening functionality with a 6-character limit for the shortened code. Authentication is required to use this endpoint. The shortened URLs are associated with the user account and count toward the user's usage limit.
+The application provides URL shortening functionality with a 6-character limit for the shortened code. The system supports both authenticated and public URL shortening.
 
-### Creating a Shortened URL
+### Creating a Shortened URL (Authenticated)
 
 **Endpoint:** `POST /api/urls`
 
@@ -161,6 +161,65 @@ token: <your_jwt_token>
 ```
 
 **Note:** When authenticated, each URL shortening operation increases the user's usage count. Users have a default limit of 10 shortened URLs, which can be adjusted in the user settings.
+
+### Creating a Shortened URL (Public)
+
+**Endpoint:** `POST /api/urls/public`
+
+**Authentication:** None required
+
+**Request Body:**
+
+```json
+{
+  "originalUrl": "https://www.example.com/very/long/path/to/resource"
+}
+```
+
+**Response:**
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "shortCode": "Ab3x9Z",
+  "originalUrl": "https://www.example.com/very/long/path/to/resource",
+  "shortUrl": "http://localhost:3000/Ab3x9Z"
+}
+```
+
+### Retrieving All Shortened URLs
+
+**Endpoint:** `GET /api/urls`
+
+**Authentication:** None required
+
+**Response:**
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "shortCode": "Ab3x9Z",
+    "originalUrl": "https://www.example.com/very/long/path/to/resource",
+    "shortUrl": "http://localhost:3000/Ab3x9Z",
+    "createdAt": "2025-06-30T23:30:00.000Z",
+    "user": {
+      "id": "a1b2c3d4-e5f6-4a5b-8c7d-9e0f1a2b3c4d",
+      "email": "user@example.com"
+    }
+  },
+  {
+    "id": "660e8400-e29b-41d4-a716-446655440001",
+    "shortCode": "Xy7z9A",
+    "originalUrl": "https://www.example.com/another/path",
+    "shortUrl": "http://localhost:3000/Xy7z9A",
+    "createdAt": "2025-06-30T23:25:00.000Z",
+    "user": null
+  }
+]
+```
+
+**Note:** The response includes all URLs in the system, with user information for authenticated URLs and `null` for URLs created through the public endpoint.
 
 ## Observability
 

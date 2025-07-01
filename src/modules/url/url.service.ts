@@ -62,6 +62,14 @@ export class UrlService {
     return savedUrl;
   }
 
+  async findAll(): Promise<Url[]> {
+    return this.urlRepository.find({
+      where: { isDeleted: false },
+      relations: ['user'],
+      order: { createdAt: 'DESC' }
+    });
+  }
+
   private generateShortCode(): string {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const codeLength = 6;
