@@ -567,6 +567,20 @@ MONITOR_PERFORMANCE=true # Monitor endpoint performance
 ENABLE_HEALTH_CHECKS=true # Enable /health endpoint
 ```
 
+### Datadog Integration
+
+The application supports sending logs and metrics to Datadog when configured with the appropriate environment variables:
+
+```
+DATADOG_ENABLED=true     # Enable Datadog integration
+DATADOG_API_KEY=your_api_key  # Your Datadog API key
+DATADOG_HOST=your_hostname    # Optional: Host identifier in Datadog
+DATADOG_SERVICE=url-shortener # Optional: Service name in Datadog (defaults to 'url-shortener')
+DATADOG_TAGS=env:production,region:us-east # Optional: Comma-separated tags
+```
+
+When Datadog integration is enabled, the application will automatically send all logs to your Datadog account while maintaining local logging capabilities.
+
 
 # Documentation
 

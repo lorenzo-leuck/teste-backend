@@ -41,7 +41,8 @@
     "swagger-ui-express": "5.0.0",
     "typeorm": "^0.3.25",
     "winston": "^3.11.0",
-    "winston-daily-rotate-file": "^4.7.1"
+    "winston-daily-rotate-file": "^4.7.1",
+    "datadog-winston": "^2.1.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

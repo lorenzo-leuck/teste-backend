@@ -4,6 +4,13 @@ import * as winston from 'winston';
 import 'winston-daily-rotate-file';
 import * as path from 'path';
 import * as fs from 'fs';
+// Import conditionally to avoid errors if the package is not installed
+let DatadogWinston: any;
+try {
+  DatadogWinston = require('datadog-winston');
+} catch (e) {
+  // Datadog Winston transport not available
+}
 
 @Injectable()
 export class AppLoggerService implements LoggerService {
@@ -47,6 +54,18 @@ export class AppLoggerService implements LoggerService {
           winston.format.timestamp(),
           winston.format.json(),
         ),
+      }));
+    }
+    
+    // Datadog transport
+    const { datadog } = observabilityConfig.logging;
+    if (datadog?.enabled && datadog?.apiKey && DatadogWinston) {
+      transports.push(new DatadogWinston({
+        apiKey: datadog.apiKey,
+        hostname: datadog.host,
+        service: datadog.service,
+        ddsource: 'nodejs',
+        ddtags: datadog.tags?.join(','),
       }));
     }
 

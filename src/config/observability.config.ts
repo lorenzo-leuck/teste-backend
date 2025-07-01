@@ -7,6 +7,13 @@ export const observabilityConfig = {
     console: true,
     file: process.env.LOG_TO_FILE === 'true',
     logFilePath: 'logs/application.log',
+    datadog: {
+      enabled: process.env.DATADOG_ENABLED === 'true',
+      apiKey: process.env.DATADOG_API_KEY,
+      host: process.env.DATADOG_HOST,
+      service: process.env.DATADOG_SERVICE || 'url-shortener',
+      tags: process.env.DATADOG_TAGS ? process.env.DATADOG_TAGS.split(',') : [],
+    },
   },
   
   // Request tracking
