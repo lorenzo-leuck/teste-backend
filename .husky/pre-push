@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Get the current branch name
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Get the remote branch being pushed to
+while read local_ref local_sha remote_ref remote_sha
+do
+  REMOTE_BRANCH=$(echo "$remote_ref" | sed -e 's,.*/\(.*\),\1,')
+  
+  # Only run tests when pushing to main branch
+  if [ "$REMOTE_BRANCH" = "main" ]; then
+    echo "Pushing to main branch. Running tests..."
+    
+    # Run the test summary script and capture its exit code
+    node scripts/test-summary.js
+    TEST_RESULT=$?
+    
+    # Exit with the same code as the test script
+    exit $TEST_RESULT
+  fi
+done
+
+# If we're not pushing to main, just continue with the push
+echo "Not pushing to main branch. Skipping tests."
+exit 0

@@ -12,6 +12,9 @@ export class Url extends BaseEntity {
   @Column({ default: 0 })
   clickCount: number;
 
+  @Column({ nullable: true })
+  expiresAt: Date;
+
   @ManyToOne('User', 'urls', { nullable: true })
   user: any | null;
 

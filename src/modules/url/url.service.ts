@@ -15,7 +15,7 @@ export class UrlService {
   ) {}
 
   async create(createUrlDto: CreateUrlDto, user?: User): Promise<Url> {
-    const { originalUrl } = createUrlDto;
+    const { originalUrl, expirationDuration } = createUrlDto;
 
     // Check user limits if authenticated
     if (user) {
@@ -24,7 +24,7 @@ export class UrlService {
         throw new BadRequestException('User not found');
       }
       
-      if (userEntity.usage >= userEntity.limit) {
+      if (userEntity.usage >= userEntity.credits) {
         throw new BadRequestException('URL shortening limit reached');
       }
     }
@@ -51,6 +51,15 @@ export class UrlService {
     url.originalUrl = originalUrl;
     url.shortCode = shortCode;
     url.user = user || null;
+    
+    // Set expiration date if provided
+    if (expirationDuration && expirationDuration > 0) {
+      const expiresAt = new Date();
+      // Convert seconds to milliseconds for internal processing
+      const milliseconds = expirationDuration * 1000;
+      expiresAt.setTime(expiresAt.getTime() + milliseconds);
+      url.expiresAt = expiresAt;
+    }
     
     const savedUrl = await this.urlRepository.save(url);
 
@@ -90,6 +99,11 @@ export class UrlService {
     
     if (!url) {
       throw new NotFoundException(`URL with short code ${shortCode} not found`);
+    }
+    
+    // Check if URL has expired
+    if (url.expiresAt && new Date() > url.expiresAt) {
+      throw new NotFoundException(`URL with short code ${shortCode} has expired`);
     }
     
     return url;
@@ -154,6 +168,41 @@ export class UrlService {
     url.updatedAt = new Date();
     
     await this.urlRepository.save(url);
+  }
+
+  async renewExpiration(id: string, userId: string, expirationDuration?: number): Promise<Url> {
+    const url = await this.urlRepository.findOne({
+      where: { 
+        id,
+        isDeleted: false 
+      },
+      relations: ['user']
+    });
+    
+    if (!url) {
+      throw new NotFoundException(`URL with ID ${id} not found`);
+    }
+    
+    if (!url.user || url.user.id !== userId) {
+      throw new ForbiddenException('You can only renew your own URLs');
+    }
+    
+    if (expirationDuration && expirationDuration > 0) {
+      const expiresAt = new Date();
+      // Convert seconds to milliseconds for internal processing
+      const milliseconds = expirationDuration * 1000;
+      expiresAt.setTime(expiresAt.getTime() + milliseconds);
+      url.expiresAt = expiresAt;
+    } else if (url.expiresAt) {
+      // If no new duration provided but URL had an expiration, extend by default period (24 hours)
+      const expiresAt = new Date();
+      expiresAt.setTime(expiresAt.getTime() + (24 * 60 * 60 * 1000)); // 24 hours in milliseconds
+      url.expiresAt = expiresAt;
+    }
+    
+    url.updatedAt = new Date();
+    
+    return this.urlRepository.save(url);
   }
 
   private generateShortCode(): string {

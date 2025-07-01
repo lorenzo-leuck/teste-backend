@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUrl, IsNotEmpty, IsString } from 'class-validator';
+import { IsUrl, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateUrlDto {
   @ApiProperty({
@@ -9,4 +9,13 @@ export class CreateUrlDto {
   @IsUrl()
   @IsNotEmpty()
   originalUrl: string;
+
+  @ApiProperty({
+    description: 'Expiration duration in seconds (optional)',
+    example: 30,
+    required: false
+  })
+  @IsNumber()
+  @IsOptional()
+  expirationDuration?: number;
 }

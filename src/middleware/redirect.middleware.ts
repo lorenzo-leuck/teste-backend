@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware, NotFoundException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { UrlService } from '../modules/url/url.service';
 
@@ -22,6 +22,7 @@ export class RedirectMiddleware implements NestMiddleware {
 
     try {
       // Try to find the URL by short code
+      // The findByShortCode method already checks for expiration
       const url = await this.urlService.findByShortCode(path);
       
       // Increment click count asynchronously
@@ -31,6 +32,15 @@ export class RedirectMiddleware implements NestMiddleware {
       // Redirect to the original URL
       return res.redirect(url.originalUrl);
     } catch (error) {
+      // Handle expired URLs specifically
+      if (error instanceof NotFoundException && error.message.includes('expired')) {
+        return res.status(410).json({ 
+          statusCode: 410,
+          message: 'This link has expired',
+          error: 'Gone'
+        });
+      }
+      
       // If URL not found or other error, continue to the next middleware/handler
       return next();
     }

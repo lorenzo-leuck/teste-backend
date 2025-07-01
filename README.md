@@ -1,7 +1,7 @@
 
 # Backend Test
 URL shortening system
-
+test
 
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
@@ -512,6 +512,26 @@ The application uses a PostgreSQL relational database with the following schema:
 
 This URL shortening system is built on a modular architecture using NestJS and TypeScript, following REST API Maturity Level 2 principles. The core functionality is organized into domain-specific modules that handle authentication, URL management, redirection, and click tracking. The system uses a relational database with well-defined entities and relationships to store URLs, user data, and access analytics. Authentication is implemented using JWT Bearer tokens, with middleware handling request validation and security. The application follows a layered architecture pattern with controllers handling HTTP requests, services implementing business logic, and repositories managing data persistence. This design ensures separation of concerns, maintainability, and scalability while providing a robust foundation for potential future enhancements like observability tools and cloud deployment.
 
+## Git Hooks with Husky
+
+This project uses Husky to enforce code quality through Git hooks:
+
+- Pre-commit hook: Automatically runs ESLint and Prettier on staged files before each commit
+- Pre-push hook: Runs the test suite before pushing to the main branch only
+
+## GitHub Actions
+
+Continuous Integration is set up using GitHub Actions to ensure code quality and prevent regressions:
+
+- Pull Request Checks: All PRs to the main branch are automatically tested
+  - Runs linting and formatting checks
+  - Executes the test suite with concise error reporting
+  - Blocks merging if any checks fail
+
+- Main Branch Checks: Runs after each merge to main
+  - Verifies code quality is maintained on the main branch
+  - Provides immediate feedback if any issues are introduced
+
 
 # Considerations
 
@@ -520,6 +540,8 @@ This URL shortening system is built on a modular architecture using NestJS and T
 # Release History
 * 0.1 - Nest Setup
 * 0.2 - Docker Compose Configuration
+* 0.3 - Git Hooks with Husky
+* 0.4 - GitHub Actions CI
 
 # License
 
