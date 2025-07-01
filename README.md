@@ -680,6 +680,50 @@ The test summary script provides concise error reporting, making it easy to iden
 * 0.3 - Git Hooks with Husky
 * 0.4 - GitHub Actions CI
 
+## Development History
+
+### Initial Setup (0.x)
+* 0.1 - Initial NestJS project setup
+* 0.2 - Docker and Docker Compose configuration
+  - PostgreSQL database setup
+  - PgAdmin integration
+  - Environment variable configuration
+* 0.3 - Git Hooks with Husky
+  - Pre-push hooks for main branch
+  - Test execution before push
+* 0.4 - GitHub Actions CI
+  - Automated testing
+  - Build verification
+
+### Version 1.0 (Core Functionality)
+* Authentication system
+  - User signup and authentication endpoints
+  - JWT token implementation
+  - Auth middleware
+* URL Shortening Core Features
+  - Create URL endpoint
+  - Public URL creation
+  - URL redirection functionality
+  - Get URLs by user
+* Testing
+  - Unit tests for core functionality
+  - Jest configuration
+
+### Post 1.0 (Business Features)
+* URL Management
+  - Soft delete endpoints
+  - URL update functionality
+  - URL renewal endpoint
+* Statistics and Monitoring
+  - URL click statistics
+  - Click tracking
+* Documentation
+  - API documentation with Swagger
+  - Architecture documentation
+* Deployment
+  - Kubernetes configuration
+  - Production deployment setup
+
 # License
 
 <img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1">
