@@ -124,9 +124,43 @@ This test verifies:
 4. User signin
 5. Protected endpoint access with valid token
   
-  
-## API Endpoints
-## URLs
+
+## URL Shortening
+
+The application provides URL shortening functionality with a 6-character limit for the shortened code. Authentication is required to use this endpoint. The shortened URLs are associated with the user account and count toward the user's usage limit.
+
+### Creating a Shortened URL
+
+**Endpoint:** `POST /api/urls`
+
+**Authentication:** Required (JWT token)
+
+To create a shortened URL as an authenticated user, include your JWT token in the request header:
+
+```
+token: <your_jwt_token>
+```
+
+**Request Body:**
+
+```json
+{
+  "originalUrl": "https://www.example.com/very/long/path/to/resource"
+}
+```
+
+**Response:**
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "shortCode": "Ab3x9Z",
+  "originalUrl": "https://www.example.com/very/long/path/to/resource",
+  "shortUrl": "http://localhost:3000/Ab3x9Z"
+}
+```
+
+**Note:** When authenticated, each URL shortening operation increases the user's usage count. Users have a default limit of 10 shortened URLs, which can be adjusted in the user settings.
 
 ## Observability
 

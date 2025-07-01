@@ -8,6 +8,7 @@ import { ObservabilityModule } from './observability';
 import { MockModule } from './modules/mock/mock.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthMiddleware } from './modules/auth/auth.middleware';
+import { UrlModule } from './modules/url/url.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuthMiddleware } from './modules/auth/auth.middleware';
     ObservabilityModule,
     MockModule,
     AuthModule,
+    UrlModule,
   ],
   controllers: [AppController],
   providers: [AppService],
