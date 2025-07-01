@@ -102,6 +102,29 @@ For protected routes, include the JWT token in the Authorization header:
 ```
 Authorization: Bearer <your_jwt_token>
 ```
+
+Alternatively, you can use the custom header format for Swagger UI testing:
+
+```
+token: <your_jwt_token>
+```
+
+### Testing Authentication Flow
+
+To test the complete authentication flow, run:
+
+```bash
+npm run test:e2e -- test/auth-flow.e2e-spec.ts
+```
+
+This test verifies:
+1. Public endpoint access
+2. Protected endpoint rejection without token
+3. User registration
+4. User signin
+5. Protected endpoint access with valid token
+  
+  
 ## API Endpoints
 ## URLs
 

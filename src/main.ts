@@ -35,10 +35,41 @@ async function bootstrap() {
     .setTitle('URL Shortener API')
     .setDescription('API for shortening URLs')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addSecurityRequirements('JWT-auth')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        description: 'Enter your JWT token here',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  
+  // Custom Swagger setup options
+  const customOptions = {
+    swaggerOptions: {
+      persistAuthorization: true,
+      authAction: {
+        'JWT-auth': {
+          name: 'JWT-auth',
+          schema: {
+            type: 'apiKey',
+            in: 'header',
+            name: 'Authorization',
+            description: 'Please enter JWT token in the format: Bearer <token>'
+          },
+          value: 'Bearer '
+        }
+      }
+    },
+  };
+  
+  SwaggerModule.setup('api/docs', app, document, customOptions);
   
   await app.listen(appConfig.port, '0.0.0.0');
   logger.log(`Application is running on: ${await app.getUrl()}`);

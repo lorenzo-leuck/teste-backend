@@ -70,18 +70,41 @@ export class AuthService {
 
   async validateToken(token: string): Promise<User> {
     try {
-      const payload = this.jwtService.verify(token);
-      const user = await this.userRepository.findOne({
-        where: { id: payload.id },
-      });
+      console.log('[AuthService] Validating token, first 10 chars:', token.substring(0, 10));
+      console.log('[AuthService] JWT secret:', process.env.JWT_SECRET || 'url-shortener-secret-key');
+      
+      try {
+        const payload = this.jwtService.verify(token);
+        console.log('[AuthService] Token payload:', payload);
+        
+        const user = await this.userRepository.findOne({
+          where: { id: payload.id },
+        });
 
-      if (!user) {
-        throw new UnauthorizedException();
+        if (!user) {
+          console.log('[AuthService] User not found for id:', payload.id);
+          throw new UnauthorizedException('User not found');
+        }
+
+        console.log('[AuthService] User found:', user.username);
+        return user;
+      } catch (jwtError) {
+        console.error('[AuthService] JWT verification error:', jwtError.message);
+        console.error('[AuthService] JWT error name:', jwtError.name);
+        
+        // Try to decode the token without verification to see what's inside
+        try {
+          const decoded = this.jwtService.decode(token);
+          console.log('[AuthService] Decoded token (without verification):', decoded);
+        } catch (decodeError) {
+          console.error('[AuthService] Failed to decode token:', decodeError.message);
+        }
+        
+        throw jwtError;
       }
-
-      return user;
     } catch (error) {
-      throw new UnauthorizedException();
+      console.error('[AuthService] Token validation error:', error.message || 'Unknown error');
+      throw new UnauthorizedException('Token validation failed: ' + (error.message || 'Unknown error'));
     }
   }
 

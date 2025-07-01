@@ -7,20 +7,33 @@ export class AuthMiddleware implements NestMiddleware {
   constructor(private authService: AuthService) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
+    // Check for token in custom header first
+    const customToken = req.headers.token as string;
+    
+    // Then check for standard Authorization header
     const authHeader = req.headers.authorization;
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing or invalid authorization token');
-    }
+    let token: string;
     
-    const token = authHeader.split(' ')[1];
+    // Try to get token from custom header first
+    if (customToken) {
+      token = customToken;
+    }
+    // Then try Authorization header
+    else if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    }
+    // No valid token found
+    else {
+      throw new UnauthorizedException('Missing or invalid token');
+    }
     
     try {
       const user = await this.authService.validateToken(token);
       req['user'] = user;
       next();
     } catch (error) {
-      throw new UnauthorizedException('Invalid authorization token');
+      throw new UnauthorizedException('Invalid token');
     }
   }
 }
