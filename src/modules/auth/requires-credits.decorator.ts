@@ -1,3 +1,4 @@
 import { SetMetadata } from '@nestjs/common';
 
-export const RequiresCredits = () => SetMetadata('requiresCredits', true);
+export const REQUIRES_CREDITS_KEY = 'requiresCredits';
+export const RequiresCredits = () => SetMetadata(REQUIRES_CREDITS_KEY, true);

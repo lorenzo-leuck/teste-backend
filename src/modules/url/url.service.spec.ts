@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { UrlService } from './url.service';
 import { Url } from '../../entities/url.entity';
 import { User } from '../../entities/user.entity';
-import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 
 const mockUrl = new Url();
 mockUrl.id = '550e8400-e29b-41d4-a716-446655440000';
@@ -54,7 +54,8 @@ describe('UrlService', () => {
           provide: getRepositoryToken(User),
           useValue: {
             findOne: jest.fn(),
-            increment: jest.fn()
+            increment: jest.fn(),
+            decrement: jest.fn()
           }
         }
       ],
@@ -67,6 +68,65 @@ describe('UrlService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('create', () => {
+    it('should create a URL and decrease user credits when authenticated', async () => {
+      const createUrlDto = { originalUrl: 'https://example.com' };
+      const savedUrl = new Url();
+      Object.assign(savedUrl, mockUrl);
+      
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
+      jest.spyOn(urlRepository, 'findOne').mockResolvedValue(null);
+      jest.spyOn(urlRepository, 'save').mockResolvedValue(savedUrl);
+      jest.spyOn(userRepository, 'increment').mockResolvedValue({ affected: 1 } as any);
+      jest.spyOn(userRepository, 'decrement').mockResolvedValue({ affected: 1 } as any);
+      
+      const result = await service.create(createUrlDto, mockUser);
+      
+      expect(result).toEqual(savedUrl);
+      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: mockUser.id } });
+      expect(userRepository.increment).toHaveBeenCalledWith({ id: mockUser.id }, 'usage', 1);
+      expect(userRepository.decrement).toHaveBeenCalledWith({ id: mockUser.id }, 'credits', 1);
+    });
+    
+    it('should not decrease credits if user has 0 credits', async () => {
+      const createUrlDto = { originalUrl: 'https://example.com' };
+      const savedUrl = new Url();
+      Object.assign(savedUrl, mockUrl);
+      
+      const userWithZeroCredits = new User();
+      Object.assign(userWithZeroCredits, mockUser);
+      userWithZeroCredits.credits = 0;
+      
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(userWithZeroCredits);
+      jest.spyOn(urlRepository, 'findOne').mockResolvedValue(null);
+      jest.spyOn(urlRepository, 'save').mockResolvedValue(savedUrl);
+      jest.spyOn(userRepository, 'increment').mockResolvedValue({ affected: 1 } as any);
+      jest.spyOn(userRepository, 'decrement').mockResolvedValue({ affected: 1 } as any);
+      
+      const result = await service.create(createUrlDto, userWithZeroCredits);
+      
+      expect(result).toEqual(savedUrl);
+      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: userWithZeroCredits.id } });
+      expect(userRepository.increment).toHaveBeenCalledWith({ id: userWithZeroCredits.id }, 'usage', 1);
+      expect(userRepository.decrement).not.toHaveBeenCalled();
+    });
+    
+    it('should throw BadRequestException if user has negative credits', async () => {
+      const createUrlDto = { originalUrl: 'https://example.com' };
+      const userWithNegativeCredits = { ...mockUser, credits: -1 };
+      
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(userWithNegativeCredits);
+      
+      await expect(service.create(createUrlDto, userWithNegativeCredits))
+        .rejects
+        .toThrow(BadRequestException);
+        
+      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: userWithZeroCredits.id } });
+      expect(userRepository.increment).not.toHaveBeenCalled();
+      expect(userRepository.decrement).not.toHaveBeenCalled();
+    });
   });
 
   describe('findAll', () => {

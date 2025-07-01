@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../entities/user.entity';
+import { REQUIRES_CREDITS_KEY } from './requires-credits.decorator';
 
 @Injectable()
 export class CreditGuard implements CanActivate {
@@ -13,7 +14,10 @@ export class CreditGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiresCredits = this.reflector.get<boolean>('requiresCredits', context.getHandler());
+    const requiresCredits = this.reflector.getAllAndOverride<boolean>(
+      REQUIRES_CREDITS_KEY,
+      [context.getHandler(), context.getClass()]
+    );
     if (!requiresCredits) {
       return true;
     }
